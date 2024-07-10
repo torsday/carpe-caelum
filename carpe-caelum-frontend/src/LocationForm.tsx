@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { gql, useMutation } from '@apollo/client';
-import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import styled from 'styled-components';
 import debounce from 'lodash.debounce';
 import 'leaflet/dist/leaflet.css';
@@ -14,13 +14,22 @@ const GET_WEATHER = gql`
   }
 `;
 
+const PageContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+`;
+
 const FormContainer = styled.div`
   text-align: center;
+  width: 100%;
 `;
 
 const Form = styled.form`
-  display: inline-block;
-  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin-top: 16px;
 `;
 
@@ -120,14 +129,6 @@ const LocationForm: React.FC = () => {
   }, [location, debouncedGeocodeLocation]);
 
   const LocationMarker = () => {
-    const map = useMap();
-
-    useEffect(() => {
-      if (position) {
-        map.setView(position, map.getZoom());
-      }
-    }, [position, map]);
-
     useMapEvents({
       click(e) {
         setPosition([e.latlng.lat, e.latlng.lng]);
@@ -139,38 +140,40 @@ const LocationForm: React.FC = () => {
   };
 
   return (
-    <FormContainer>
-      <h1>Weather Finder</h1>
-      <MapContainerStyled center={position || [45.5348, -122.6975]} zoom={13}>
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
-        <LocationMarker />
-      </MapContainerStyled>
-      <Form onSubmit={handleSubmit}>
-        <InputContainer>
-          <Input
-            type="text"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            placeholder="Enter location"
+    <PageContainer>
+      <FormContainer>
+        <h1>Carpe Caelum</h1>
+        <MapContainerStyled center={position || [45.5348, -122.6975]} zoom={13}>
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            // attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
-          <Button type="button" onClick={handleGeolocation}>
-            Use My Location
-          </Button>
-        </InputContainer>
-        <Button type="submit">Get Weather</Button>
-      </Form>
-      {loading && <p>Loading...</p>}
-      {error && <p>Error: {error.message}</p>}
-      {data && (
-        <ResultContainer>
-          <p>Temperature: {data.getWeather.temperature}°C</p>
-          <p>Description: {data.getWeather.description}</p>
-        </ResultContainer>
-      )}
-    </FormContainer>
+          <LocationMarker />
+        </MapContainerStyled>
+        <Form onSubmit={handleSubmit}>
+          <InputContainer>
+            <Input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Enter location"
+            />
+            <Button type="button" onClick={handleGeolocation}>
+              Use My Location
+            </Button>
+          </InputContainer>
+          <Button type="submit">Get Weather</Button>
+        </Form>
+        {loading && <p>Loading...</p>}
+        {error && <p>Error: {error.message}</p>}
+        {data && (
+          <ResultContainer>
+            <p>Temperature: {data.getWeather.temperature}°C</p>
+            <p>Description: {data.getWeather.description}</p>
+          </ResultContainer>
+        )}
+      </FormContainer>
+    </PageContainer>
   );
 };
 
