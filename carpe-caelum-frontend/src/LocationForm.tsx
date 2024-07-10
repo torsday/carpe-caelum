@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import styled from 'styled-components';
@@ -92,6 +92,7 @@ const LocationForm: React.FC = () => {
   const [location, setLocation] = useState('');
   const [position, setPosition] = useState<[number, number] | null>(null);
   const [getWeather, { data, loading, error }] = useMutation(GET_WEATHER);
+  const mapRef = useRef(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,6 +144,13 @@ const LocationForm: React.FC = () => {
     }
   }, [location, debouncedGeocodeLocation]);
 
+  useEffect(() => {
+    if (position && mapRef.current) {
+      const map = mapRef.current;
+      map.flyTo(position, map.getZoom());
+    }
+  }, [position]);
+
   const LocationMarker = () => {
     useMapEvents({
       click(e) {
@@ -158,16 +166,13 @@ const LocationForm: React.FC = () => {
     <PageContainer>
       <FormContainer>
         <Header>CARPE CAELUM</Header>
-        <MapContainerStyled center={position || [45.5348, -122.6975]} zoom={13}>
+        <MapContainerStyled
+          center={position || [45.5348, -122.6975]}
+          zoom={13}
+          ref={mapRef}
+        >
           <TileLayer
-            // url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            // url="https://tile.thunderforest.com/pioneer/{z}/{x}/{y}.png?apikey=3151821c90f5417ba9baa0c4320be33e"
             url="https://tile.thunderforest.com/transport-dark/{z}/{x}/{y}.png?apikey=3151821c90f5417ba9baa0c4320be33e"
-
-
-
-
-            // attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
           <LocationMarker />
         </MapContainerStyled>
