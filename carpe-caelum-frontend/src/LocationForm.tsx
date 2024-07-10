@@ -116,7 +116,7 @@ const LocationForm: React.FC = () => {
     }
   };
 
-  const handleGeolocation = () => {
+  const handleGeolocation = useCallback(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -134,12 +134,12 @@ const LocationForm: React.FC = () => {
     } else {
       alert("Geolocation is not supported by this browser.");
     }
-  };
+  }, [getWeather]);
 
   useEffect(() => {
     // Automatically try to ascertain the user's location on page load
     handleGeolocation();
-  }, []);
+  }, [handleGeolocation]);
 
   const geocodeLocation = async (location: string) => {
     try {
