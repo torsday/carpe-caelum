@@ -18,10 +18,12 @@ class WeatherService
   START_TIME = "now"
   END_TIME = "nowPlus5d"
   CACHE_EXPIRATION = 30.minutes
+  LAT_LON_PRECISION = ENV.fetch("LAT_LON_PRECISION") { 5 }.to_i
 
   def get_weather_timeline(lat, lon)
-    rounded_lat = (lat * 10**5).round
-    rounded_lon = (lon * 10**5).round
+    rounded_lat = (lat * 10**LAT_LON_PRECISION).round
+    rounded_lon = (lon * 10**LAT_LON_PRECISION).round
+
     cache_key = "weather:#{rounded_lat}:#{rounded_lon}"
 
     cached_data = $redis.get(cache_key)
