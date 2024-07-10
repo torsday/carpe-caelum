@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { gql, useMutation } from '@apollo/client';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import styled from 'styled-components';
 import debounce from 'lodash.debounce';
 import 'leaflet/dist/leaflet.css';
-import { Map as LeafletMap } from 'leaflet';
+import WeatherMap from './WeatherMap'; // Import the new component
 
 const GET_WEATHER = gql`
   mutation GetWeather($input: GetWeatherInput!) {
@@ -69,12 +68,6 @@ const ResultContainer = styled.div`
   margin-top: 16px;
 `;
 
-const MapContainerStyled = styled(MapContainer)`
-  height: 400px;
-  width: 100%;
-  margin-top: 16px;
-`;
-
 const Header = styled.h1`
   color: #b58900;
   font-family: "Luxurious Roman", serif;
@@ -104,7 +97,6 @@ const LocationForm: React.FC = () => {
       setErrorMsg(error.message);
     },
   });
-  const mapRef = useRef<LeafletMap>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -168,41 +160,16 @@ const LocationForm: React.FC = () => {
     }
   }, [location, debouncedGeocodeLocation]);
 
-  useEffect(() => {
-    if (position && mapRef.current) {
-      const map = mapRef.current;
-      map.flyTo(position, 15); // Adjusts the zoom level when flying to a location.
-    }
-  }, [position]);
-
-  const LocationMarker = () => {
-    useMapEvents({
-      click(e) {
-        const lat = e.latlng.lat.toFixed(LAT_LON_PRECISION);
-        const lon = e.latlng.lng.toFixed(LAT_LON_PRECISION);
-        setPosition([parseFloat(lat), parseFloat(lon)]);
-        setLocation(`${lat},${lon}`);
-        getWeather({ variables: { input: { input: { location: `${lat},${lon}` } } } });
-      },
-    });
-
-    return position === null ? null : <Marker position={position}></Marker>;
-  };
-
   return (
     <PageContainer>
       <FormContainer>
         <Header>CARPE CAELUM</Header>
-        <MapContainerStyled
-          center={position || [37.334587, -122.008753]}
-          zoom={13}
-          ref={mapRef}
-        >
-          <TileLayer
-            url="https://tile.thunderforest.com/transport-dark/{z}/{x}/{y}.png?apikey=3151821c90f5417ba9baa0c4320be33e"
-          />
-          <LocationMarker />
-        </MapContainerStyled>
+        <WeatherMap
+          position={position}
+          setPosition={setPosition}
+          LAT_LON_PRECISION={LAT_LON_PRECISION}
+          getWeather={getWeather}
+        />
         <Form onSubmit={handleSubmit}>
           <InputContainer>
             <Input
