@@ -14,7 +14,6 @@ module Mutations
 
       begin
         weather_data = WeatherService.new.get_weather_timeline(lat, lon)
-        Rails.logger.info "Weather data fetched: #{weather_data.inspect}"
 
         if weather_data
           {

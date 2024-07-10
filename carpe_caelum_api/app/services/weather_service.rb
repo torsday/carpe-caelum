@@ -17,7 +17,7 @@ class WeatherService
   TIME_STEPS = ["1h"]
   START_TIME = "now"
   END_TIME = "nowPlus5d"
-  CACHE_EXPIRATION = 30.minutes
+  REDIS_CACHE_EXPIRATION_IN_SEC = ENV.fetch("REDIS_CACHE_EXPIRATION_IN_MIN", 30).to_i * 60 # translate to seconds
   LAT_LON_PRECISION = ENV.fetch("LAT_LON_PRECISION") { 5 }.to_i
   MAX_RETRIES = 5
 
@@ -31,13 +31,16 @@ class WeatherService
     if cached_data
       JSON.parse(cached_data)
     else
+      Rails.logger.info "Cache miss for #{cache_key}, querying Tomorrow.io API"
       api_key = ENV.fetch('TOMORROW_IO_API_KEY') { raise 'TOMORROW_IO_API_KEY not set' }
       retries = 0
 
       begin
         response = send_request("#{lat},#{lon}", api_key)
         json_timeline = get_json_timeline_from_response(response)
-        $redis.set(cache_key, json_timeline.to_json, ex: CACHE_EXPIRATION) if json_timeline
+        if json_timeline
+          $redis.set(cache_key, json_timeline.to_json, ex: REDIS_CACHE_EXPIRATION_IN_SEC)
+        end
         json_timeline
       rescue Net::HTTP::Persistent::Error, Timeout::Error => e
         retries += 1
