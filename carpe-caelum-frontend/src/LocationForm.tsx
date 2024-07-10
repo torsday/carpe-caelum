@@ -123,6 +123,11 @@ const LocationForm: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    // Automatically try to ascertain the user's location on page load
+    handleGeolocation();
+  }, []);
+
   const geocodeLocation = async (location: string) => {
     try {
       const response = await fetch(
@@ -172,7 +177,7 @@ const LocationForm: React.FC = () => {
       <FormContainer>
         <Header>CARPE CAELUM</Header>
         <MapContainerStyled
-          center={position || [37.334587411990086,-122.00875282287599]}
+          center={position || [37.334587411990086, -122.00875282287599]}
           zoom={13}
           ref={mapRef}
         >
