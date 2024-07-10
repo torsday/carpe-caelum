@@ -147,7 +147,7 @@ const LocationForm: React.FC = () => {
   useEffect(() => {
     if (position && mapRef.current) {
       const map = mapRef.current;
-      map.flyTo(position, map.getZoom());
+      map.flyTo(position, 15); // Adjust the zoom level as needed
     }
   }, [position]);
 
