@@ -4,6 +4,7 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import styled from 'styled-components';
 import debounce from 'lodash.debounce';
 import 'leaflet/dist/leaflet.css';
+import { Map as LeafletMap } from 'leaflet';
 
 const GET_WEATHER = gql`
   mutation GetWeather($input: GetWeatherInput!) {
@@ -88,17 +89,21 @@ const Header = styled.h1`
   }
 `;
 
+// 6 gives us a precision of 3.6 feet.
+// The backend can choose to use that precision, or lower it, but I'm confident it won't need more.
+const LAT_LON_PRECISION = 6;
+
 const LocationForm: React.FC = () => {
   const [location, setLocation] = useState('');
   const [position, setPosition] = useState<[number, number] | null>(null);
   const [getWeather, { data, loading, error }] = useMutation(GET_WEATHER);
-  const mapRef = useRef(null);
+  const mapRef = useRef<LeafletMap>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (position) {
-      const [lat, lon] = position;
-      getWeather({ variables: { input: {input: { location: `${lat},${lon}` } } } });
+      const [lat, lon] = position.map((coord) => coord.toFixed(6)); // Limit to 6 digits
+      getWeather({ variables: { input: { input: { location: `${lat},${lon}` } } } });
     } else {
       alert("Please select a location on the map.");
     }
@@ -108,10 +113,10 @@ const LocationForm: React.FC = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
+          const lat = position.coords.latitude.toFixed(LAT_LON_PRECISION);
+          const lon = position.coords.longitude.toFixed(LAT_LON_PRECISION);
           setLocation(`${lat},${lon}`);
-          setPosition([lat, lon]);
+          setPosition([parseFloat(lat), parseFloat(lon)]);
         },
         (error) => {
           console.error("Error fetching geolocation:", error);
@@ -164,8 +169,10 @@ const LocationForm: React.FC = () => {
   const LocationMarker = () => {
     useMapEvents({
       click(e) {
-        setPosition([e.latlng.lat, e.latlng.lng]);
-        setLocation(`${e.latlng.lat},${e.latlng.lng}`);
+        const lat = e.latlng.lat.toFixed(LAT_LON_PRECISION);
+        const lon = e.latlng.lng.toFixed(LAT_LON_PRECISION);
+        setPosition([parseFloat(lat), parseFloat(lon)]);
+        setLocation(`${lat},${lon}`);
       },
     });
 
@@ -177,7 +184,7 @@ const LocationForm: React.FC = () => {
       <FormContainer>
         <Header>CARPE CAELUM</Header>
         <MapContainerStyled
-          center={position || [37.334587411990086, -122.00875282287599]}
+          center={position || [37.334587, -122.008753]}
           zoom={13}
           ref={mapRef}
         >
