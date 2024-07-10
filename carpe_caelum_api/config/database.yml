@@ -1,0 +1,20 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  username: <%= ENV["CARPE_CAELUM_DATABASE_USERNAME"] %>
+  password: <%= ENV["CARPE_CAELUM_DATABASE_PASSWORD"] %>
+
+development:
+  <<: *default
+  database: carpe_caelum_development
+
+test:
+  <<: *default
+  database: carpe_caelum_test
+
+production:
+  <<: *default
+  database: carpe_caelum_production
+  username: carpe_caelum
+  password: <%= ENV['CARPE_CAELUM_DATABASE_PASSWORD'] %>
