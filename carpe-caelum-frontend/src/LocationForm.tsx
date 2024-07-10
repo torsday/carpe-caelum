@@ -117,6 +117,7 @@ const LocationForm: React.FC = () => {
           const lon = position.coords.longitude.toFixed(LAT_LON_PRECISION);
           setLocation(`${lat},${lon}`);
           setPosition([parseFloat(lat), parseFloat(lon)]);
+          getWeather({ variables: { input: { input: { location: `${lat},${lon}` } } } });
         },
         (error) => {
           console.error("Error fetching geolocation:", error);
@@ -143,6 +144,7 @@ const LocationForm: React.FC = () => {
       if (data.length > 0) {
         const { lat, lon } = data[0];
         setPosition([parseFloat(lat), parseFloat(lon)]);
+        getWeather({ variables: { input: { input: { location: `${lat},${lon}` } } } });
       } else {
         console.warn('Location not found.');
       }
@@ -173,6 +175,7 @@ const LocationForm: React.FC = () => {
         const lon = e.latlng.lng.toFixed(LAT_LON_PRECISION);
         setPosition([parseFloat(lat), parseFloat(lon)]);
         setLocation(`${lat},${lon}`);
+        getWeather({ variables: { input: { input: { location: `${lat},${lon}` } } } });
       },
     });
 
