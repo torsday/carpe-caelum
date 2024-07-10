@@ -93,6 +93,8 @@ const Header = styled.h1`
 // The backend can choose to use that precision, or lower it, but I'm confident it won't need more.
 const LAT_LON_PRECISION = 6;
 
+const DEBOUNCE_DELAY = 1000; // The time to wait before geocoding the location.
+
 const LocationForm: React.FC = () => {
   const [location, setLocation] = useState('');
   const [position, setPosition] = useState<[number, number] | null>(null);
@@ -107,7 +109,7 @@ const LocationForm: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (position) {
-      const [lat, lon] = position.map((coord) => coord.toFixed(6)); // Limit to 6 digits
+      const [lat, lon] = position.map((coord) => coord.toFixed(LAT_LON_PRECISION));
       getWeather({ variables: { input: { input: { location: `${lat},${lon}` } } } });
     } else {
       alert("Please select a location on the map.");
@@ -158,7 +160,7 @@ const LocationForm: React.FC = () => {
     }
   };
 
-  const debouncedGeocodeLocation = useCallback(debounce(geocodeLocation, 500), []);
+  const debouncedGeocodeLocation = useCallback(debounce(geocodeLocation, DEBOUNCE_DELAY), []);
 
   useEffect(() => {
     if (location) {
@@ -169,7 +171,7 @@ const LocationForm: React.FC = () => {
   useEffect(() => {
     if (position && mapRef.current) {
       const map = mapRef.current;
-      map.flyTo(position, 15); // Adjust the zoom level as needed
+      map.flyTo(position, 15); // Adjusts the zoom level when flying to a location.
     }
   }, [position]);
 
