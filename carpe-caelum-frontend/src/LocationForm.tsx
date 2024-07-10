@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { gql, useMutation } from '@apollo/client';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import styled from 'styled-components';
+import debounce from 'lodash.debounce';
+import 'leaflet/dist/leaflet.css';
 
 const GET_WEATHER = gql`
   mutation GetWeather($input: GetWeatherInput!) {
@@ -18,11 +21,13 @@ const FormContainer = styled.div`
 const Form = styled.form`
   display: inline-block;
   text-align: left;
+  margin-top: 16px;
 `;
 
 const InputContainer = styled.div`
   display: flex;
   align-items: center;
+  margin-top: 16px;
 `;
 
 const Input = styled.input`
@@ -37,7 +42,7 @@ const Button = styled.button`
   cursor: pointer;
   border: none;
   margin-top: 8px;
-  background-color: ${props => props.type === 'submit' ? '#28A745' : '#007BFF'};
+  background-color: ${(props) => (props.type === 'submit' ? '#28A745' : '#007BFF')};
   color: white;
 
   &:hover {
@@ -53,13 +58,20 @@ const ResultContainer = styled.div`
   margin-top: 16px;
 `;
 
+const MapContainerStyled = styled(MapContainer)`
+  height: 400px;
+  width: 100%;
+  margin-top: 16px;
+`;
+
 const LocationForm: React.FC = () => {
   const [location, setLocation] = useState('');
+  const [position, setPosition] = useState<[number, number] | null>(null);
   const [getWeather, { data, loading, error }] = useMutation(GET_WEATHER);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    getWeather({ variables: { input: { input: {location} } } });
+    getWeather({ variables: { input: { location } } });
   };
 
   const handleGeolocation = () => {
@@ -69,6 +81,7 @@ const LocationForm: React.FC = () => {
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
           setLocation(`${lat},${lon}`);
+          setPosition([lat, lon]);
         },
         (error) => {
           console.error("Error fetching geolocation:", error);
@@ -80,8 +93,58 @@ const LocationForm: React.FC = () => {
     }
   };
 
+  const geocodeLocation = async (location: string) => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`
+      );
+      const data = await response.json();
+
+      if (data.length > 0) {
+        const { lat, lon } = data[0];
+        setPosition([parseFloat(lat), parseFloat(lon)]);
+      } else {
+        console.warn('Location not found.');
+      }
+    } catch (error) {
+      console.error("Error geocoding location:", error);
+    }
+  };
+
+  const debouncedGeocodeLocation = useCallback(debounce(geocodeLocation, 500), []);
+
+  useEffect(() => {
+    if (location) {
+      debouncedGeocodeLocation(location);
+    }
+  }, [location, debouncedGeocodeLocation]);
+
+  const LocationMarker = () => {
+    const map = useMapEvents({
+      click(e) {
+        setPosition([e.latlng.lat, e.latlng.lng]);
+        setLocation(`${e.latlng.lat},${e.latlng.lng}`);
+      },
+    });
+
+    return position === null ? null : (
+      <Marker position={position}></Marker>
+    );
+  };
+
   return (
     <FormContainer>
+      <h1>Weather Finder</h1>
+      <MapContainerStyled
+        center={position || [45.5348, -122.6975]}
+        zoom={13}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
+        <LocationMarker />
+      </MapContainerStyled>
       <Form onSubmit={handleSubmit}>
         <InputContainer>
           <Input
