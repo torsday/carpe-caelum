@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { gql, useMutation } from '@apollo/client';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import styled from 'styled-components';
 import debounce from 'lodash.debounce';
 import 'leaflet/dist/leaflet.css';
@@ -71,7 +71,7 @@ const LocationForm: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    getWeather({ variables: { input: { location } } });
+    getWeather({ variables: { input: { input: { location }} } });
   };
 
   const handleGeolocation = () => {
@@ -120,25 +120,28 @@ const LocationForm: React.FC = () => {
   }, [location, debouncedGeocodeLocation]);
 
   const LocationMarker = () => {
-    const map = useMapEvents({
+    const map = useMap();
+
+    useEffect(() => {
+      if (position) {
+        map.setView(position, map.getZoom());
+      }
+    }, [position, map]);
+
+    useMapEvents({
       click(e) {
         setPosition([e.latlng.lat, e.latlng.lng]);
         setLocation(`${e.latlng.lat},${e.latlng.lng}`);
       },
     });
 
-    return position === null ? null : (
-      <Marker position={position}></Marker>
-    );
+    return position === null ? null : <Marker position={position}></Marker>;
   };
 
   return (
     <FormContainer>
       <h1>Weather Finder</h1>
-      <MapContainerStyled
-        center={position || [45.5348, -122.6975]}
-        zoom={13}
-      >
+      <MapContainerStyled center={position || [45.5348, -122.6975]} zoom={13}>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
