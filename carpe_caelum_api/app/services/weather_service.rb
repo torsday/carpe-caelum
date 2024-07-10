@@ -25,7 +25,7 @@ class WeatherService
     rounded_lat = (lat * 10**LAT_LON_PRECISION).round
     rounded_lon = (lon * 10**LAT_LON_PRECISION).round
 
-    cache_key = "weather:#{rounded_lat}:#{rounded_lon}"
+    cache_key = "weather-timeline:#{rounded_lat}:#{rounded_lon}"
 
     cached_data = $redis.get(cache_key)
     if cached_data
