@@ -6,6 +6,7 @@ module Mutations
 
     field :temperature, Float, null: false
     field :description, String, null: false
+    field :error_message, String, null: true
 
     def resolve(input:)
       location = input[:location]
@@ -18,14 +19,15 @@ module Mutations
         if weather_data
           {
             temperature: weather_data["data"]["timelines"][0]["intervals"][0]["values"]["temperatureApparent"],
-            description: weather_data["data"]["timelines"][0]["intervals"][0]["values"]["weatherCode"]
+            description: weather_data["data"]["timelines"][0]["intervals"][0]["values"]["weatherCode"],
+            error_message: nil
           }
         else
           raise GraphQL::ExecutionError, "Error fetching weather data"
         end
       rescue => e
         Rails.logger.error "Error fetching weather data: #{e.message}"
-        raise GraphQL::ExecutionError, "Error fetching weather data"
+        { temperature: nil, description: nil, error_message: e.message }
       end
     end
   end

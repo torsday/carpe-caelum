@@ -19,6 +19,7 @@ class WeatherService
   END_TIME = "nowPlus5d"
   CACHE_EXPIRATION = 30.minutes
   LAT_LON_PRECISION = ENV.fetch("LAT_LON_PRECISION") { 5 }.to_i
+  MAX_RETRIES = 5
 
   def get_weather_timeline(lat, lon)
     rounded_lat = (lat * 10**LAT_LON_PRECISION).round
@@ -31,10 +32,25 @@ class WeatherService
       JSON.parse(cached_data)
     else
       api_key = ENV.fetch('TOMORROW_IO_API_KEY') { raise 'TOMORROW_IO_API_KEY not set' }
-      response = send_request("#{lat},#{lon}", api_key)
-      json_timeline = get_json_timeline_from_response(response)
-      $redis.set(cache_key, json_timeline.to_json, ex: CACHE_EXPIRATION) if json_timeline
-      json_timeline
+      retries = 0
+
+      begin
+        response = send_request("#{lat},#{lon}", api_key)
+        json_timeline = get_json_timeline_from_response(response)
+        $redis.set(cache_key, json_timeline.to_json, ex: CACHE_EXPIRATION) if json_timeline
+        json_timeline
+      rescue Net::HTTP::Persistent::Error, Timeout::Error => e
+        retries += 1
+        if retries <= MAX_RETRIES
+          sleep_time = 2**retries
+          Rails.logger.info "Retry ##{retries} after #{sleep_time} seconds due to #{e.class}: #{e.message}"
+          sleep(sleep_time)
+          retry
+        else
+          Rails.logger.error "Max retries reached. #{e.class}: #{e.message}"
+          nil
+        end
+      end
     end
   end
 
@@ -51,7 +67,13 @@ class WeatherService
     request["content-type"] = 'application/json'
     request.body = request_body(location).to_json
 
-    http.request(request)
+    response = http.request(request)
+
+    if response.code == "429"
+      raise Net::HTTP::Persistent::Error, "Too Many Requests"
+    end
+
+    response
   rescue StandardError => e
     Rails.logger.error "HTTP request failed: #{e.message}"
     nil

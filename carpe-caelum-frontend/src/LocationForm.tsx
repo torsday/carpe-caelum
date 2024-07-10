@@ -96,7 +96,12 @@ const LAT_LON_PRECISION = 6;
 const LocationForm: React.FC = () => {
   const [location, setLocation] = useState('');
   const [position, setPosition] = useState<[number, number] | null>(null);
-  const [getWeather, { data, loading, error }] = useMutation(GET_WEATHER);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [getWeather, { data, loading, error }] = useMutation(GET_WEATHER, {
+    onError: (error) => {
+      setErrorMsg(error.message);
+    },
+  });
   const mapRef = useRef<LeafletMap>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -211,7 +216,7 @@ const LocationForm: React.FC = () => {
           <Button type="submit">Get Weather</Button>
         </Form>
         {loading && <p>Loading...</p>}
-        {error && <p>Error: {error.message}</p>}
+        {errorMsg && <p>Error: {errorMsg}</p>}
         {data && (
           <ResultContainer>
             <p>Temperature: {data.getWeather.temperature}°F</p>
