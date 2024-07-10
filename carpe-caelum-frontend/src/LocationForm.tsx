@@ -96,7 +96,12 @@ const LocationForm: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    getWeather({ variables: { input: { input: { location }} } });
+    if (position) {
+      const [lat, lon] = position;
+      getWeather({ variables: { input: {input: { location: `${lat},${lon}` } } } });
+    } else {
+      alert("Please select a location on the map.");
+    }
   };
 
   const handleGeolocation = () => {
