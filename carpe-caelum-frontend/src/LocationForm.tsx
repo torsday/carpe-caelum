@@ -15,6 +15,7 @@ const GET_WEATHER = gql`
 `;
 
 const PageContainer = styled.div`
+  background-color: #002b36;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -71,6 +72,20 @@ const MapContainerStyled = styled(MapContainer)`
   height: 400px;
   width: 100%;
   margin-top: 16px;
+`;
+
+const Header = styled.h1`
+  color: #b58900;
+  font-family: "Luxurious Roman", serif;
+  font-size: 4rem; /* Large header size */
+
+  @media (max-width: 768px) {
+    font-size: 2rem; /* Adjust for tablets */
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.5rem; /* Adjust for mobile phones */
+  }
 `;
 
 const LocationForm: React.FC = () => {
@@ -142,7 +157,7 @@ const LocationForm: React.FC = () => {
   return (
     <PageContainer>
       <FormContainer>
-        <h1>Carpe Caelum</h1>
+        <Header>CARPE CAELUM</Header>
         <MapContainerStyled center={position || [45.5348, -122.6975]} zoom={13}>
           <TileLayer
             // url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
