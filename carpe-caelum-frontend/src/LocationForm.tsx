@@ -167,7 +167,7 @@ const LocationForm: React.FC = () => {
       <FormContainer>
         <Header>CARPE CAELUM</Header>
         <MapContainerStyled
-          center={position || [45.5348, -122.6975]}
+          center={position || [37.334587411990086,-122.00875282287599]}
           zoom={13}
           ref={mapRef}
         >
