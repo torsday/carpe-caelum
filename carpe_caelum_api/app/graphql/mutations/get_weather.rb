@@ -8,8 +8,8 @@ module Mutations
     field :description, String, null: false
 
     def resolve(input:)
+      Rails.logger.info("CHRIS TORSTENSON: GetWeather Mutation called with input: #{input.inspect}")
       location = input[:location]
-      Rails.logger.info "GetWeather Mutation called with location: #{location}"
 
       begin
         weather_data = WeatherService.new.get_weather_timeline(location)

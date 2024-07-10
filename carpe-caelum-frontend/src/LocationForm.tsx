@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
 
 const GET_WEATHER = gql`
-  mutation GetWeather($input: GetWeatherInputType!) {
+  mutation GetWeather($input: GetWeatherInput!) {
     getWeather(input: $input) {
       temperature
       description
@@ -16,7 +16,7 @@ const LocationForm: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    getWeather({ variables: { input: { location } } });
+    getWeather({ variables: { input: { input: { location } } } });
   };
 
   return (
