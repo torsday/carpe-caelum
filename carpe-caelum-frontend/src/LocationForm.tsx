@@ -146,13 +146,8 @@ const LocationForm: React.FC = () => {
         <MapContainerStyled center={position || [45.5348, -122.6975]} zoom={13}>
           <TileLayer
             // url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            // url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-            // url="https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png"
-            // url="https://tile.thunderforest.com/spinal-map/{z}/{x}/{y}.png?apikey=YOUR_API_KEY"
-            // url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
-            // url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.{ext}"
-            // url="https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.{ext}"
-            url="https://tile.thunderforest.com/pioneer/{z}/{x}/{y}.png?apikey=3151821c90f5417ba9baa0c4320be33e"
+            // url="https://tile.thunderforest.com/pioneer/{z}/{x}/{y}.png?apikey=3151821c90f5417ba9baa0c4320be33e"
+            url="https://tile.thunderforest.com/transport-dark/{z}/{x}/{y}.png?apikey=3151821c90f5417ba9baa0c4320be33e"
 
 
 
@@ -179,7 +174,7 @@ const LocationForm: React.FC = () => {
         {error && <p>Error: {error.message}</p>}
         {data && (
           <ResultContainer>
-            <p>Temperature: {data.getWeather.temperature}°C</p>
+            <p>Temperature: {data.getWeather.temperature}°F</p>
             <p>Description: {data.getWeather.description}</p>
           </ResultContainer>
         )}
