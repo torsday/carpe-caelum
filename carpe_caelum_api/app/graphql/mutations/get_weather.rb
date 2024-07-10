@@ -9,15 +9,17 @@ module Mutations
 
     def resolve(input:)
       location = input[:location]
+      lat, lon = location.split(',').map(&:to_f)
 
       begin
-        weather_data = WeatherService.new.get_weather_timeline(location)
+        weather_data = WeatherService.new.get_weather_timeline(lat, lon)
         Rails.logger.info "Weather data fetched: #{weather_data.inspect}"
 
         if weather_data
           {
             temperature: weather_data["data"]["timelines"][0]["intervals"][0]["values"]["temperatureApparent"],
-            description: weather_data["data"]["timelines"][0]["intervals"][0]["values"]["weatherCode"],          }
+            description: weather_data["data"]["timelines"][0]["intervals"][0]["values"]["weatherCode"]
+          }
         else
           raise GraphQL::ExecutionError, "Error fetching weather data"
         end

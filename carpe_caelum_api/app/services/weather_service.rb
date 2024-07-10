@@ -17,12 +17,23 @@ class WeatherService
   TIME_STEPS = ["1h"]
   START_TIME = "now"
   END_TIME = "nowPlus5d"
+  CACHE_EXPIRATION = 30.minutes
 
-  def get_weather_timeline(location)
-    api_key = ENV.fetch('TOMORROW_IO_API_KEY') { raise 'TOMORROW_IO_API_KEY not set' }
-    response = send_request(location, api_key)
-    json_timline = get_json_timeline_from_response(response)
-    json_timline
+  def get_weather_timeline(lat, lon)
+    rounded_lat = (lat * 10**5).round
+    rounded_lon = (lon * 10**5).round
+    cache_key = "weather:#{rounded_lat}:#{rounded_lon}"
+
+    cached_data = $redis.get(cache_key)
+    if cached_data
+      JSON.parse(cached_data)
+    else
+      api_key = ENV.fetch('TOMORROW_IO_API_KEY') { raise 'TOMORROW_IO_API_KEY not set' }
+      response = send_request("#{lat},#{lon}", api_key)
+      json_timeline = get_json_timeline_from_response(response)
+      $redis.set(cache_key, json_timeline.to_json, ex: CACHE_EXPIRATION) if json_timeline
+      json_timeline
+    end
   end
 
   private
