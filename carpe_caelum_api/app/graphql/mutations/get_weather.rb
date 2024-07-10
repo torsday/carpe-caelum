@@ -8,7 +8,6 @@ module Mutations
     field :description, String, null: false
 
     def resolve(input:)
-      Rails.logger.info("CHRIS TORSTENSON: GetWeather Mutation called with input: #{input.inspect}")
       location = input[:location]
 
       begin
@@ -17,9 +16,8 @@ module Mutations
 
         if weather_data
           {
-            temperature: weather_data['temperatureApparent']['value'],
-            description: weather_data['weatherCode']['value']
-          }
+            temperature: weather_data["data"]["timelines"][0]["intervals"][0]["values"]["temperatureApparent"],
+            description: weather_data["data"]["timelines"][0]["intervals"][0]["values"]["weatherCode"],          }
         else
           raise GraphQL::ExecutionError, "Error fetching weather data"
         end
