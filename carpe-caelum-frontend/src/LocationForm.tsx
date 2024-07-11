@@ -114,7 +114,6 @@ const LocationForm: React.FC = () => {
                     const lon = position.coords.longitude.toFixed(LAT_LON_PRECISION);
                     setLocation(`${lat},${lon}`);
                     setPosition([parseFloat(lat), parseFloat(lon)]);
-                    getWeather({ variables: { input: { input: { location: `${lat},${lon}` } } } });
                 },
                 (error) => {
                     console.error("Error fetching geolocation:", error);
@@ -124,11 +123,18 @@ const LocationForm: React.FC = () => {
         } else {
             alert("Geolocation is not supported by this browser.");
         }
-    }, [getWeather]);
+    }, []);
 
     useEffect(() => {
         handleGeolocation();
     }, [handleGeolocation]);
+
+    useEffect(() => {
+        if (position) {
+            const [lat, lon] = position.map((coord) => coord.toFixed(LAT_LON_PRECISION));
+            getWeather({ variables: { input: { input: { location: `${lat},${lon}` } } } });
+        }
+    }, [position, getWeather]);
 
     const geocodeLocation = async (location: string) => {
         try {
@@ -143,7 +149,6 @@ const LocationForm: React.FC = () => {
                 const { center } = data.features[0];
                 const [lon, lat] = center;
                 setPosition([lat, lon]);
-                getWeather({ variables: { input: { input: { location: `${lat.toFixed(LAT_LON_PRECISION)},${lon.toFixed(LAT_LON_PRECISION)}` } } } });
             } else {
                 console.warn('Location not found.');
             }
