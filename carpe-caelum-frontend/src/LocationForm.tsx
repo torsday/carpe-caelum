@@ -2,8 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import styled from 'styled-components';
 import debounce from 'lodash.debounce';
+import axios from 'axios';
 import 'leaflet/dist/leaflet.css';
-import WeatherMap from './WeatherMap'; // Import the new component
+import WeatherMap from './WeatherMap';
 
 const GET_WEATHER = gql`
     mutation GetWeather($input: GetWeatherInput!) {
@@ -71,22 +72,19 @@ const ResultContainer = styled.div`
 const Header = styled.h1`
     color: #b58900;
     font-family: "Luxurious Roman", serif;
-    font-size: 4rem; /* Large header size */
+    font-size: 4rem;
 
     @media (max-width: 768px) {
-        font-size: 2rem; /* Adjust for tablets */
+        font-size: 2rem;
     }
 
     @media (max-width: 480px) {
-        font-size: 1.5rem; /* Adjust for mobile phones */
+        font-size: 1.5rem;
     }
 `;
 
-// 6 gives us a precision of 3.6 feet.
-// The backend can choose to use that precision, or lower it, but I'm confident it won't need more.
 const LAT_LON_PRECISION = 6;
-
-const DEBOUNCE_DELAY = 1000; // The time to wait before geocoding the location.
+const DEBOUNCE_DELAY = 1000;
 
 const LocationForm: React.FC = () => {
     const [location, setLocation] = useState('');
@@ -129,31 +127,25 @@ const LocationForm: React.FC = () => {
     }, [getWeather]);
 
     useEffect(() => {
-        // Automatically try to ascertain the user's location on page load
         handleGeolocation();
     }, [handleGeolocation]);
 
     const geocodeLocation = async (location: string) => {
         try {
-            const response = await fetch(
-                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`, {
-                    headers: {
-                        'User-Agent': 'CarpeCaelum/0.1 (c.torsday@gmail.com)'
-                    }
-                }
-            );
-            if (response.ok) {
-                const data = await response.json();
+            const response = await axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(location)}.json`, {
+                params: {
+                    access_token: 'sk.eyJ1IjoidG9yc2RheSIsImEiOiJjbHlodWt4dTEwM2hvMnJxMnllNWtzZHJmIn0.PQ4Iwe6M4bwyaFJXD-b12g',
+                },
+            });
+            const data = response.data;
 
-                if (data.length > 0) {
-                    const { lat, lon } = data[0];
-                    setPosition([parseFloat(lat), parseFloat(lon)]);
-                    getWeather({ variables: { input: { input: { location: `${lat},${lon}` } } } });
-                } else {
-                    console.warn('Location not found.');
-                }
+            if (data.features && data.features.length > 0) {
+                const { center } = data.features[0];
+                const [lon, lat] = center;
+                setPosition([lat, lon]);
+                getWeather({ variables: { input: { input: { location: `${lat.toFixed(LAT_LON_PRECISION)},${lon.toFixed(LAT_LON_PRECISION)}` } } } });
             } else {
-                console.error(`Error: ${response.status} ${response.statusText}`);
+                console.warn('Location not found.');
             }
         } catch (error) {
             console.error("Error geocoding location:", error);
@@ -167,26 +159,6 @@ const LocationForm: React.FC = () => {
             debouncedGeocodeLocation(location);
         }
     }, [location, debouncedGeocodeLocation]);
-
-    let lastRequestTime = 0;
-
-    const limitedGeocodeLocation = async (location: string) => {
-        const currentTime = Date.now();
-        if (currentTime - lastRequestTime < 1000) {
-            console.warn('Skipping request to comply with rate limit');
-            return;
-        }
-        lastRequestTime = currentTime;
-        await geocodeLocation(location);
-    };
-
-    const debouncedLimitedGeocodeLocation = useCallback(debounce(limitedGeocodeLocation, DEBOUNCE_DELAY), []);
-
-    useEffect(() => {
-        if (location) {
-            debouncedLimitedGeocodeLocation(location);
-        }
-    }, [location, debouncedLimitedGeocodeLocation]);
 
     return (
         <PageContainer>
