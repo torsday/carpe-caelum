@@ -1,0 +1,7 @@
+class WeatherSnapshot
+  attr_accessor utc: String
+  attr_accessor temperature_apparent: Float
+  attr_accessor weather_description: WeatherDescriptions
+
+  def initialize: (utc: String, temperature_apparent: Float, weather_description: WeatherDescriptions) -> void
+end

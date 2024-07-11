@@ -1,0 +1,24 @@
+class WeatherService
+  attr_accessor weather_repository: WeatherRepository
+
+  REDIS_CACHE_EXPIRATION_IN_SEC: Integer
+  LAT_LON_PRECISION: Integer
+
+  def initialize: (weather_repository: WeatherRepository) -> void
+
+  def get_current_feels_like_temperature_for: (
+    latitude: Float,
+    longitude: Float
+  ) -> Float
+
+  def get_feels_like_high_and_low_for: (
+    latitude: Float,
+    longitude: Float,
+    window_in_hours: Integer
+  ) -> [Float, Float]
+
+  def get_current_conditions_for: (
+    latitude: Float,
+    longitude: Float
+  ) -> String
+end

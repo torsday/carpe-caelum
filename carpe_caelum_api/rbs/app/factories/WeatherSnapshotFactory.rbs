@@ -1,0 +1,6 @@
+# typed: true
+
+class WeatherSnapshotFactory
+  def self.to_json: (WeatherSnapshot) -> String
+  def self.from_json: (String) -> WeatherSnapshot
+end

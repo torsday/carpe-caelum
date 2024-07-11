@@ -1,0 +1,37 @@
+class WeatherRepository
+  attr_accessor redis_client: RedisClient
+  attr_accessor latitude_longitude_precision: Integer
+  attr_accessor tomorrow_io_wrapper: TomorrowIoWrapper
+
+  def initialize: (
+      redis_client: RedisClient,
+      tomorrow_io_wrapper: TomorrowIoWrapper,
+      latitude_longitude_precision: Integer
+    ) -> void
+
+  def get_current_feels_like_temperature_for: (
+      latitude: Float,
+      longitude: Float
+    ) -> Float
+
+  def get_current_conditions_for: (
+      latitude: Float,
+      longitude: Float
+    ) -> String
+
+  private
+
+  def get_snapshot_for: (
+      latitude: Float,
+      longitude: Float,
+      utc: Time
+    ) -> WeatherSnapshot
+
+  def get_tomorrow_io_timeline_redis_key: (
+      key_lat: Float,
+      key_lon: Float,
+      utc: Time
+    ) -> String
+
+  def get_current_utc_rounded_down: () -> Time
+end

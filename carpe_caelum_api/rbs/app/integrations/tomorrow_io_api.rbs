@@ -1,0 +1,22 @@
+class TomorrowIoApi
+  extend Singleton
+
+  BASE_URL: String
+  FIELDS: Array[String]
+  UNITS: String
+  TIME_STEPS: Array[String]
+  START_TIME: String
+  END_TIME: String
+  MAX_RETRIES: Integer
+  REDIS_CACHE_EXPIRATION_IN_SEC: Integer
+
+  def get_parsed_weather_timeline_for: (latitude: Float, longitude: Float) -> (Hash[String, untyped] | nil)
+
+  private
+  def cache_key: (latitude: Float, longitude: Float) -> String
+  def send_request: (location: String, api_key: String) -> (Net::HTTPResponse | nil)
+  def request_body: (location: String) -> Hash[String, untyped]
+  def get_json_timeline_from_response: (response: Net::HTTPResponse | nil) -> (Hash[String, untyped] | nil)
+  def decompress_response: (response: Net::HTTPResponse) -> String
+  def parse_response: (raw_timeline: String) -> (Hash[String, untyped] | nil)
+end

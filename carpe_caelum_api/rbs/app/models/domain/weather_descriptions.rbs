@@ -1,0 +1,26 @@
+module WeatherDescriptions
+  UNKNOWN: String
+  CLEAR_SUNNY: String
+  MOSTLY_CLEAR: String
+  PARTLY_CLOUDY: String
+  MOSTLY_CLOUDY: String
+  CLOUDY: String
+  FOG: String
+  LIGHT_FOG: String
+  DRIZZLE: String
+  RAIN: String
+  LIGHT_RAIN: String
+  HEAVY_RAIN: String
+  SNOW: String
+  FLURRIES: String
+  LIGHT_SNOW: String
+  HEAVY_SNOW: String
+  FREEZING_DRIZZLE: String
+  FREEZING_RAIN: String
+  LIGHT_FREEZING_RAIN: String
+  HEAVY_FREEZING_RAIN: String
+  ICE_PELLETS: String
+  HEAVY_ICE_PELLETS: String
+  LIGHT_ICE_PELLETS: String
+  THUNDERSTORM: String
+end

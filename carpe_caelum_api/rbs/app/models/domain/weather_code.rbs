@@ -1,0 +1,8 @@
+class WeatherCode
+  WEATHER_DESCRIPTIONS: untyped
+
+  attr_accessor code: String
+
+  def initialize: (code: String) -> void
+  def get_description: () -> String
+end

@@ -49,6 +49,7 @@ group :development, :test do
   gem 'capybara', '>= 3.26'
   gem 'selenium-webdriver'
   gem 'webdrivers'
+  gem 'pry'
 end
 
 group :development do
@@ -71,3 +72,9 @@ gem 'faker', group: :test
 
 # JSON Web Tokens (JWT) for authentication
 gem 'jwt'
+
+gem 'rbs'
+gem 'steep'
+
+
+gem 'net-http-persistent'
