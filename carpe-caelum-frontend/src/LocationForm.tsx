@@ -6,6 +6,7 @@ import axios from 'axios';
 import 'leaflet/dist/leaflet.css';
 import WeatherMap from './WeatherMap';
 
+// GraphQL query to fetch weather data
 const GET_WEATHER = gql`
     query GetWeather($latitude: Float!, $longitude: Float!) {
         weather(latitude: $latitude, longitude: $longitude) {
@@ -18,6 +19,7 @@ const GET_WEATHER = gql`
     }
 `;
 
+// Styled components for the UI
 const PageContainer = styled.div`
     background-color: #002b36;
     display: flex;
@@ -105,16 +107,29 @@ const Header = styled.h1`
     }
 `;
 
+// Constants
 const LAT_LON_PRECISION = 6;
 const DEBOUNCE_DELAY = 1000;
 
+// Interface for weather data
+interface WeatherData {
+    weather: {
+        temperature: number;
+        fiveHrTemperatureLow: number;
+        fiveHrTemperatureHigh: number;
+        description: string;
+        errorMessage: string;
+    };
+}
+
+// LocationForm component
 const LocationForm: React.FC = () => {
     const [location, setLocation] = useState('');
     const [position, setPosition] = useState<[number, number] | null>(null);
     const [errorMsg, setErrorMsg] = useState('');
-    const [weatherData, setWeatherData] = useState(null);
+    const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
 
-    const { data, loading, error, refetch } = useQuery(GET_WEATHER, {
+    const { loading, refetch } = useQuery<WeatherData>(GET_WEATHER, {
         variables: { latitude: 0, longitude: 0 },
         skip: true,
         onError: (error) => {
@@ -123,6 +138,7 @@ const LocationForm: React.FC = () => {
         },
     });
 
+    // Handle form submission to fetch weather data
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (position) {
@@ -141,6 +157,7 @@ const LocationForm: React.FC = () => {
         }
     };
 
+    // Handle geolocation to get the user's current position
     const handleGeolocation = useCallback(() => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -161,10 +178,12 @@ const LocationForm: React.FC = () => {
         }
     }, []);
 
+    // Fetch geolocation on component mount
     useEffect(() => {
         handleGeolocation();
     }, [handleGeolocation]);
 
+    // Refetch weather data when position changes
     useEffect(() => {
         if (position) {
             const [latitude, longitude] = position;
@@ -180,6 +199,7 @@ const LocationForm: React.FC = () => {
         }
     }, [position, refetch]);
 
+    // Geocode location input to get latitude and longitude
     const geocodeLocation = async (location: string) => {
         try {
             const response = await axios.get(
@@ -206,8 +226,10 @@ const LocationForm: React.FC = () => {
         }
     };
 
+    // Debounced geocoding function to avoid excessive API calls
     const debouncedGeocodeLocation = useCallback(debounce(geocodeLocation, DEBOUNCE_DELAY), []);
 
+    // Geocode location whenever the input changes
     useEffect(() => {
         if (location) {
             debouncedGeocodeLocation(location);
@@ -222,7 +244,7 @@ const LocationForm: React.FC = () => {
                     position={position}
                     setPosition={setPosition}
                     LAT_LON_PRECISION={LAT_LON_PRECISION}
-                    refetchWeather={refetch}
+                    getWeather={refetch}
                 />
                 <Form onSubmit={handleSubmit}>
                     <InputContainer>
