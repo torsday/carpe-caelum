@@ -42,12 +42,17 @@ const InputContainer = styled.div`
     display: flex;
     align-items: center;
     margin-top: 16px;
+    width: 100%;
+    max-width: 500px;
+    justify-content: center;
 `;
 
 const Input = styled.input`
     padding: 8px;
     font-size: 16px;
-    flex: 1;
+    text-align: center;
+    width: 40ch;
+    margin-right: 8px;
 `;
 
 const Button = styled.button`
@@ -55,7 +60,7 @@ const Button = styled.button`
     font-size: 16px;
     cursor: pointer;
     border: none;
-    margin-top: 8px;
+    margin-top: ${(props) => (props.type === 'submit' ? '17px' : '0')};
     background-color: ${(props) => (props.type === 'submit' ? '#28A745' : '#007BFF')};
     color: white;
 
@@ -70,6 +75,20 @@ const Button = styled.button`
 
 const ResultContainer = styled.div`
     margin-top: 16px;
+`;
+
+const TemperatureRange = styled.p`
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #b58900;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    span {
+        margin: 0 8px;
+        color: #268bd2;
+    }
 `;
 
 const Header = styled.h1`
@@ -224,9 +243,13 @@ const LocationForm: React.FC = () => {
                 {weatherData && weatherData.weather && (
                     <ResultContainer>
                         <p>5 Hour Forecast (Low &lt; Present &lt; High) in °F</p>
-                        <p>
-                            {weatherData.weather.fiveHrTemperatureLow}°F &lt; {weatherData.weather.temperature}°F &lt; {weatherData.weather.fiveHrTemperatureHigh}°F
-                        </p>                        
+                        <TemperatureRange>
+                            <span>{weatherData.weather.fiveHrTemperatureLow}°F</span>
+                            &lt;
+                            <span>{weatherData.weather.temperature}°F</span>
+                            &lt;
+                            <span>{weatherData.weather.fiveHrTemperatureHigh}°F</span>
+                        </TemperatureRange>
                         {weatherData.weather.description && (
                             <p>{weatherData.weather.description}</p>
                         )}
