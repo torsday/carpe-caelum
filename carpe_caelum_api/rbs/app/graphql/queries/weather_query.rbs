@@ -1,0 +1,58 @@
+module Queries
+  class WeatherQuery < GraphQL::Schema::Resolver
+    def resolve: (
+        latitude: Float,
+        longitude: Float
+      ) -> {
+        temperature: Float?,
+        fiveHrTemperatureLow: Float?,
+        fiveHrTemperatureHigh: Float?,
+        description: String?,
+        errorMessage: String?
+      }
+
+    private
+
+    def initialize_weather_service: () -> WeatherService
+
+    def fetch_current_temperature: (
+        weather_service: WeatherService,
+        latitude: Float,
+        longitude: Float
+      ) -> Float?
+
+    def fetch_temperature_low: (
+        weather_service: WeatherService,
+        latitude: Float,
+        longitude: Float
+      ) -> Float?
+
+    def fetch_temperature_high: (
+        weather_service: WeatherService,
+        latitude: Float,
+        longitude: Float
+      ) -> Float?
+
+    def fetch_current_conditions: (
+        weather_service: WeatherService,
+        latitude: Float,
+        longitude: Float
+      ) -> String?
+
+    def handle_error: (Exception) -> {
+        temperature: nil,
+        fiveHrTemperatureLow: nil,
+        fiveHrTemperatureHigh: nil,
+        description: nil,
+        errorMessage: String
+      }
+  end
+end
+
+module GraphQL
+  module Schema
+    class Resolver
+      def resolve: () -> untyped
+    end
+  end
+end
