@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative '../factories/weather_snapshot_factory'
-require_relative '../factories/weather_factory'
+require_relative '../services/weather_snapshot_factory'
+require_relative '../services/weather_factory'
 
 class WeatherRepository
   attr_accessor :redis_client, :latitude_longitude_precision, :tomorrow_io_wrapper

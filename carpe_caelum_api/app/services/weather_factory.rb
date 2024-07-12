@@ -12,9 +12,11 @@ class WeatherFactory
   # @raise [StandardError] if an error occurs during the process.
   def self.build_weather_snapshots_from_tomorrow_io_timeline_resp(api_response)
     Rails.logger.debug "Building weather snapshots from Tomorrow.io API response"
-    intervals = api_response.dig("data", "timelines", 0, "intervals")
 
-    # Build the collection of weather snapshot domain objects
+    intervals = api_response.dig("data", "timelines", 0, "intervals")
+    raise "No intervals found in the API response" unless intervals
+
+    # Create a hash of weather snapshots, with the interval start time as the key
     weather_snapshot_dict = intervals.each_with_object({}) do |interval, dict|
       snapshot = build_weather_snapshot_from_tomorrow_io_timeline_interval(api_response_interval: interval)
       dict[interval["startTime"]] = snapshot
@@ -35,6 +37,7 @@ class WeatherFactory
   # @raise [StandardError] if an error occurs during the process.
   def self.build_weather_snapshot_from_tomorrow_io_timeline_interval(api_response_interval:)
     Rails.logger.debug "Building weather snapshot from interval: #{api_response_interval}"
+
     WeatherSnapshot.new(
       utc: Time.parse(api_response_interval["startTime"]),
       temperature_apparent: api_response_interval.dig("values", "temperatureApparent"),
@@ -56,6 +59,7 @@ class WeatherFactory
   # @return [String] The local weather description.
   def self.translate_tomorrow_io_weather_code_to_weather_description(tomorrow_io_weather_code)
     Rails.logger.debug "Translating weather code: #{tomorrow_io_weather_code}"
+
     weather_descriptions = {
       "0" => WeatherDescriptions::UNKNOWN,
       "1000" => WeatherDescriptions::CLEAR_SUNNY,
@@ -83,6 +87,7 @@ class WeatherFactory
       "8000" => WeatherDescriptions::THUNDERSTORM
     }.freeze
 
-    weather_descriptions[tomorrow_io_weather_code]
+    # Return the local weather description or UNKNOWN if the code is not found
+    weather_descriptions[tomorrow_io_weather_code] || WeatherDescriptions::UNKNOWN
   end
 end
