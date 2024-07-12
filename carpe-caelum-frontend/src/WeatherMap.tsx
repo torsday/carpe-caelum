@@ -45,9 +45,9 @@ const WeatherMap: React.FC<WeatherMapProps> = ({ position, setPosition, LAT_LON_
       zoom={13}
       ref={mapRef}
     >
-      <TileLayer
-        url="https://tile.thunderforest.com/transport-dark/{z}/{x}/{y}.png?apikey=3151821c90f5417ba9baa0c4320be33e"
-      />
+        <TileLayer
+            url={`https://tile.thunderforest.com/transport-dark/{z}/{x}/{y}.png?apikey=${process.env.THUNDERFOREST_API_KEY}`}
+        />
       <LocationMarker />
     </MapContainerStyled>
   );
