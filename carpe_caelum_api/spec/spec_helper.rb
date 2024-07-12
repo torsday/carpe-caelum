@@ -3,6 +3,11 @@ require 'factory_bot_rails'
 require 'simplecov'
 SimpleCov.start 'rails' do
   add_filter '/spec/'
+  add_filter '/config/'
+  add_filter '/vendor/'
+  add_filter '/lib/tasks/'
+  add_filter '/db/'
+  add_filter '/bin/'
 end
 
 RSpec.configure do |config|
@@ -18,3 +23,4 @@ RSpec.configure do |config|
 
   config.include FactoryBot::Syntax::Methods
 end
+

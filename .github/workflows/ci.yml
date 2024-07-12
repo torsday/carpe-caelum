@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - uses: actions/checkout@v3
+
+      # Cache for Ruby gems
+      - name: Set up Cache for Gems
+        uses: actions/cache@v3
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+
+      # Cache for Node modules
+      - name: Set up Cache for Node Modules
+        uses: actions/cache@v3
+        with:
+          path: carpe-caelum-frontend/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
+  test-backend:
+    runs-on: ubuntu-latest
+    needs: setup
+
+    services:
+      postgres:
+        image: postgres:13
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: carpe_caelum_test
+
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+
+    env:
+      RAILS_ENV: test
+      PGHOST: localhost
+      CARPE_CAELUM_DATABASE_USERNAME: postgres
+      CARPE_CAELUM_DATABASE_PASSWORD: password
+      PGDATABASE: carpe_caelum_test
+
+    steps:
+      # Checkout the repository
+      - uses: actions/checkout@v3
+
+      # Set up Ruby environment
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1.2'
+
+      # Install backend dependencies
+      - name: Install backend dependencies
+        run: |
+          cd carpe_caelum_api
+          bundle config set path 'vendor/bundle'
+          bundle install
+
+      # Set up Database
+      - name: Set up Database
+        run: |
+          cd carpe_caelum_api
+          bin/rails db:create
+          bin/rails db:migrate
+
+      # Run backend tests and generate coverage report
+      - name: Run backend tests and generate coverage report
+        run: |
+          cd carpe_caelum_api
+          SIMPLECOV=true bundle exec rspec
+
+      # Upload backend coverage report
+      - name: Upload backend coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: backend-coverage-report
+          path: carpe_caelum_api/coverage/
