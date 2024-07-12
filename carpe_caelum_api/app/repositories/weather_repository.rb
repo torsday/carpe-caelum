@@ -28,6 +28,26 @@ class WeatherRepository
     snapshot.weather_description
   end
 
+  def get_feels_like_high_and_low_for(latitude, longitude, window_in_hours)
+    validate_coordinates(latitude, longitude)
+    raise ArgumentError, "window_in_hours must be a positive integer" unless window_in_hours.is_a?(Integer) && window_in_hours > 0
+
+    current_utc = get_current_utc_rounded_down
+    snapshot_hash = {}
+    for n in 0..(window_in_hours - 1)
+      query_utc = current_utc + (n * 60 * 60)
+      snapshot = get_snapshot_for(latitude: latitude, longitude: longitude, utc: query_utc + (n * 60 * 60))
+      snapshot_hash[query_utc] = snapshot
+    end
+
+    snapshot_collection = WeatherSnapshotCollection.new(weather_snapshots: snapshot_hash)
+
+    {
+      temp_low: snapshot_collection.get_temp_low,
+      temp_high: snapshot_collection.get_temp_high
+    }
+  end
+
   private
 
   def get_snapshot_for(latitude:, longitude:, utc:)
@@ -55,6 +75,7 @@ class WeatherRepository
       # Persist each WeatherSnapshot individually to redis
       weather_snapshot_collection.get_list_of_snapshots.each do |snapshot|
         redis_key = get_tomorrow_io_timeline_redis_key(key_lat: key_lat, key_lon: key_lon, utc: snapshot.utc)
+        # binding.pry
         serialized_snapshot = WeatherSnapshotFactory.to_json(snapshot)
         Rails.logger.debug "Saving to Redis with key #{redis_key}: #{serialized_snapshot.inspect}"
         redis_client.set(redis_key, serialized_snapshot)

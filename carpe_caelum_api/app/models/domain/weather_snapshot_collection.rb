@@ -6,11 +6,11 @@ class WeatherSnapshotCollection
   end
 
   def get_temp_high
-    weather_snapshots.values.map(&:temp_high).max
+    weather_snapshots.values.map(&:temperature_apparent).max
   end
 
   def get_temp_low
-    weather_snapshots.values.map(&:temp_low).min
+    weather_snapshots.values.map(&:temperature_apparent).min
   end
 
   def get_utc_start
@@ -24,6 +24,7 @@ class WeatherSnapshotCollection
   def get_list_of_snapshots
     weather_snapshots.values
   end
+
   def get_weather_snapshot_for(utc)
     weather_snapshots[utc]
   end

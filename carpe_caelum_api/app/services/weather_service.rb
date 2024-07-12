@@ -17,6 +17,14 @@ class WeatherService
     weather_repository.get_current_feels_like_temperature_for(latitude: latitude, longitude:longitude)
   end
 
+  def get_5_hr_temperature_low_for(latitude:, longitude:)
+    get_feels_like_high_and_low_for(latitude: latitude, longitude: longitude, window_in_hours: 5)[:temp_low]
+  end
+
+  def get_5_hr_temperature_high_for(latitude:, longitude:)
+    get_feels_like_high_and_low_for(latitude: latitude, longitude: longitude, window_in_hours: 5)[:temp_high]
+  end
+
   def get_feels_like_high_and_low_for(latitude:, longitude:, window_in_hours: 24)
     weather_repository.get_feels_like_high_and_low_for(latitude, longitude, window_in_hours)
   end

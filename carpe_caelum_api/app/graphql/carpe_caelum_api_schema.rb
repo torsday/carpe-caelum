@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class CarpeCaelumApiSchema < GraphQL::Schema
-  mutation(Types::MutationType)
   query(Types::QueryType)
+  mutation(Types::MutationType)
 
   use GraphQL::Dataloader
 
