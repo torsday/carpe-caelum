@@ -1,6 +1,8 @@
-# typed: true
-
 class WeatherSnapshotFactory
   def self.to_json: (WeatherSnapshot) -> String
   def self.from_json: (String) -> WeatherSnapshot
+
+  private
+  def self.create_weather_snapshot_from_hash: (Hash[:utc => String, :temperature_apparent => Float, :weather_description => String]) -> WeatherSnapshot
+  def self.parse_time: (String) -> Time?
 end

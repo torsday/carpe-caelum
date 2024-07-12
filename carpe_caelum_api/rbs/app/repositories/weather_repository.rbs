@@ -1,11 +1,11 @@
 class WeatherRepository
-  attr_accessor redis_client: RedisClient
+  attr_accessor redis_client: untyped
   attr_accessor latitude_longitude_precision: Integer
-  attr_accessor tomorrow_io_wrapper: TomorrowIoWrapper
+  attr_accessor tomorrow_io_wrapper: untyped
 
   def initialize: (
-      redis_client: RedisClient,
-      tomorrow_io_wrapper: TomorrowIoWrapper,
+      redis_client: untyped,
+      tomorrow_io_wrapper: untyped,
       latitude_longitude_precision: Integer
     ) -> void
 
@@ -19,6 +19,12 @@ class WeatherRepository
       longitude: Float
     ) -> String
 
+  def get_feels_like_high_and_low_for: (
+      latitude: Float,
+      longitude: Float,
+      window_in_hours: Integer
+    ) -> { temp_low: Float, temp_high: Float }
+
   private
 
   def get_snapshot_for: (
@@ -27,11 +33,23 @@ class WeatherRepository
       utc: Time
     ) -> WeatherSnapshot
 
+  def query_external_api_for_weather_snapshot: (
+      latitude: Float,
+      longitude: Float,
+      utc: Time
+    ) -> WeatherSnapshot
+
   def get_tomorrow_io_timeline_redis_key: (
-      key_lat: Float,
-      key_lon: Float,
+      latitude: Float,
+      longitude: Float,
       utc: Time
     ) -> String
 
   def get_current_utc_rounded_down: () -> Time
+
+  def validate_coordinates: (
+      latitude: Float,
+      longitude: Float
+    ) -> void
 end
+

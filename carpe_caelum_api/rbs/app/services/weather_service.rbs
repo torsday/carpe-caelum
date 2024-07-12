@@ -7,18 +7,28 @@ class WeatherService
   def initialize: (weather_repository: WeatherRepository) -> void
 
   def get_current_feels_like_temperature_for: (
-    latitude: Float,
-    longitude: Float
-  ) -> Float
+      latitude: Float,
+      longitude: Float
+    ) -> Float
+
+  def get_5_hr_temperature_low_for: (
+      latitude: Float,
+      longitude: Float
+    ) -> Float
+
+  def get_5_hr_temperature_high_for: (
+      latitude: Float,
+      longitude: Float
+    ) -> Float
 
   def get_feels_like_high_and_low_for: (
-    latitude: Float,
-    longitude: Float,
-    window_in_hours: Integer
-  ) -> [Float, Float]
+      latitude: Float,
+      longitude: Float,
+      window_in_hours: Integer
+    ) -> { temp_low: Float, temp_high: Float }
 
   def get_current_conditions_for: (
-    latitude: Float,
-    longitude: Float
-  ) -> String
+      latitude: Float,
+      longitude: Float
+    ) -> String
 end

@@ -1,13 +1,12 @@
 class WeatherSnapshotCollection
-  attr_accessor weather_snapshots: Hash[String, WeatherSnapshot]
+  attr_reader weather_snapshots: Hash[String, WeatherSnapshot]
 
-  def initialize: (Hash[String, WeatherSnapshot]) -> void
-
-  def get_list_of_snapshots: -> WeatherSnapshot[]
+  def initialize: (weather_snapshots: Hash[String, WeatherSnapshot]) -> void
 
   def get_temp_high: () -> Float?
   def get_temp_low: () -> Float?
   def get_utc_start: () -> String?
   def get_utc_end: () -> String?
-  def get_weather_snapshot_for: (String) -> WeatherSnapshot?
+  def get_list_of_snapshots: () -> Array[WeatherSnapshot]
+  def get_weather_snapshot_for: (utc: String) -> WeatherSnapshot?
 end

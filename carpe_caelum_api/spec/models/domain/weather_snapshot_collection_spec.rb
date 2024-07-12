@@ -1,6 +1,6 @@
 require 'rails_helper'
-require_relative '../../app/models/domain/weather_snapshot_collection'
-require_relative '../../app/models/domain/weather_snapshot'
+require_relative '../../../app/models/domain/weather_snapshot_collection'
+require_relative '../../../app/models/domain/weather_snapshot'
 
 
 RSpec.describe WeatherSnapshotCollection do

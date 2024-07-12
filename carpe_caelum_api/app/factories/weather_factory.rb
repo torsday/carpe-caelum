@@ -5,17 +5,21 @@ require_relative '../models/domain/weather_snapshot_collection'
 require_relative '../models/domain/weather_descriptions'
 
 class WeatherFactory
+  # Builds a collection of WeatherSnapshot objects from the Tomorrow.io API response.
+  #
+  # @param api_response [Hash] The parsed JSON response from the Tomorrow.io API.
+  # @return [WeatherSnapshotCollection] A collection of weather snapshots.
+  # @raise [StandardError] if an error occurs during the process.
   def self.build_weather_snapshots_from_tomorrow_io_timeline_resp(api_response)
     Rails.logger.debug "Building weather snapshots from Tomorrow.io API response"
-    intervals = api_response["data"]["timelines"][0]["intervals"]
+    intervals = api_response.dig("data", "timelines", 0, "intervals")
 
-    # build the collection of weather snapshot domain objects
-    weather_snapshot_dict = {}
-    intervals.each do |interval|
-      snapshot = self.build_weather_snapshot_from_tomorrow_io_timeline_interval(api_response_interval: interval)
-      weather_snapshot_dict[interval["startTime"]] = snapshot
+    # Build the collection of weather snapshot domain objects
+    weather_snapshot_dict = intervals.each_with_object({}) do |interval, dict|
+      snapshot = build_weather_snapshot_from_tomorrow_io_timeline_interval(api_response_interval: interval)
+      dict[interval["startTime"]] = snapshot
     end
-# here
+
     Rails.logger.debug "Completed building weather snapshots"
     WeatherSnapshotCollection.new(weather_snapshots: weather_snapshot_dict)
   rescue => e
@@ -24,13 +28,18 @@ class WeatherFactory
     raise
   end
 
+  # Builds a WeatherSnapshot object from a single interval of the Tomorrow.io API response.
+  #
+  # @param api_response_interval [Hash] A single interval of the Tomorrow.io API response.
+  # @return [WeatherSnapshot] A weather snapshot.
+  # @raise [StandardError] if an error occurs during the process.
   def self.build_weather_snapshot_from_tomorrow_io_timeline_interval(api_response_interval:)
     Rails.logger.debug "Building weather snapshot from interval: #{api_response_interval}"
     WeatherSnapshot.new(
       utc: Time.parse(api_response_interval["startTime"]),
-      temperature_apparent: api_response_interval["values"]["temperatureApparent"],
+      temperature_apparent: api_response_interval.dig("values", "temperatureApparent"),
       weather_description: translate_tomorrow_io_weather_code_to_weather_description(
-        api_response_interval["values"]["weatherCode"].to_s
+        api_response_interval.dig("values", "weatherCode").to_s
       )
     )
   rescue => e
@@ -41,9 +50,13 @@ class WeatherFactory
 
   private
 
+  # Translates a Tomorrow.io weather code to a local weather description.
+  #
+  # @param tomorrow_io_weather_code [String] The weather code from Tomorrow.io.
+  # @return [String] The local weather description.
   def self.translate_tomorrow_io_weather_code_to_weather_description(tomorrow_io_weather_code)
     Rails.logger.debug "Translating weather code: #{tomorrow_io_weather_code}"
-    tomorrow_io_weather_codes_to_local_descriptions = {
+    weather_descriptions = {
       "0" => WeatherDescriptions::UNKNOWN,
       "1000" => WeatherDescriptions::CLEAR_SUNNY,
       "1100" => WeatherDescriptions::MOSTLY_CLEAR,
@@ -70,6 +83,6 @@ class WeatherFactory
       "8000" => WeatherDescriptions::THUNDERSTORM
     }.freeze
 
-    tomorrow_io_weather_codes_to_local_descriptions[tomorrow_io_weather_code]
+    weather_descriptions[tomorrow_io_weather_code]
   end
 end

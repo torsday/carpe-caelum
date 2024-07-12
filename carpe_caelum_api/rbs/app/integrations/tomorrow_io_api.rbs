@@ -1,6 +1,4 @@
 class TomorrowIoApi
-  extend Singleton
-
   BASE_URL: String
   FIELDS: Array[String]
   UNITS: String
@@ -8,15 +6,33 @@ class TomorrowIoApi
   START_TIME: String
   END_TIME: String
   MAX_RETRIES: Integer
-  REDIS_CACHE_EXPIRATION_IN_SEC: Integer
+  LAT_LON_PRECISION: Integer
 
   def get_parsed_weather_timeline_for: (latitude: Float, longitude: Float) -> (Hash[String, untyped] | nil)
 
   private
-  def cache_key: (latitude: Float, longitude: Float) -> String
-  def send_request: (location: String, api_key: String) -> (Net::HTTPResponse | nil)
-  def request_body: (location: String) -> Hash[String, untyped]
-  def get_json_timeline_from_response: (response: Net::HTTPResponse | nil) -> (Hash[String, untyped] | nil)
-  def decompress_response: (response: Net::HTTPResponse) -> String
-  def parse_response: (raw_timeline: String) -> (Hash[String, untyped] | nil)
+
+  def fetch_api_key: () -> String
+  def handle_retry: (Integer, Exception) -> (nil | Net::HTTP::Persistent::Error | Timeout::Error)
+  def log_error: (String, Exception) -> void
+  def cache_key: (Float, Float) -> String
+  def send_request: (String, String) -> (Net::HTTPResponse | nil)
+  def build_request: (URI, String) -> Net::HTTP::Post
+  def configure_http: (Net::HTTP::Persistent) -> void
+  def handle_rate_limiting: (Net::HTTPResponse) -> void
+  def request_body: (String) -> Hash[String, untyped]
+  def process_response: (Net::HTTPResponse | nil) -> (Hash[String, untyped] | nil)
+  def get_json_timeline_from_response: (Net::HTTPResponse | nil) -> (Hash[String, untyped] | nil)
+  def decompress_response: (Net::HTTPResponse) -> String
+  def parse_response: (String) -> (Hash[String, untyped] | nil)
+end
+
+class Net::HTTP::Persistent
+  def initialize: () -> void
+  def request: (URI, Net::HTTPRequest) -> Net::HTTPResponse
+  attr_accessor verify_mode: Integer
+  attr_accessor cert_store: OpenSSL::X509::Store
+
+  class Error < StandardError
+  end
 end
