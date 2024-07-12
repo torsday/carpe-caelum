@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "carpe-caelum",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
