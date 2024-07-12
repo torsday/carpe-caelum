@@ -167,7 +167,7 @@ const LocationForm: React.FC = () => {
                 `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(location)}.json`,
                 {
                     params: {
-                        access_token: 'sk.eyJ1IjoidG9yc2RheSIsImEiOiJjbHlodWt4dTEwM2hvMnJxMnllNWtzZHJmIn0.PQ4Iwe6M4bwyaFJXD-b12g',
+                        access_token: process.env.MAPBOX_API_TOKEN,
                     },
                 }
             );
@@ -223,10 +223,13 @@ const LocationForm: React.FC = () => {
                 {errorMsg && <p>Error: {errorMsg}</p>}
                 {weatherData && weatherData.weather && (
                     <ResultContainer>
-                        <p>Temperature: {weatherData.weather.temperature}°F</p>
-                        <p>Low (next 5 hrs): {weatherData.weather.fiveHrTemperatureLow}°F</p>
-                        <p>High (next 5 hrs): {weatherData.weather.fiveHrTemperatureHigh}°F</p>
-                        <p>Description: {weatherData.weather.description}</p>
+                        <p>5 Hour Forecast (Low &lt; Present &lt; High) in °F</p>
+                        <p>
+                            {weatherData.weather.fiveHrTemperatureLow}°F &lt; {weatherData.weather.temperature}°F &lt; {weatherData.weather.fiveHrTemperatureHigh}°F
+                        </p>                        
+                        {weatherData.weather.description && (
+                            <p>{weatherData.weather.description}</p>
+                        )}
                         {weatherData.weather.errorMessage && <p>Error: {weatherData.weather.errorMessage}</p>}
                     </ResultContainer>
                 )}
