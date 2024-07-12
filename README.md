@@ -10,6 +10,8 @@ Seize the Sky
 
 ## Presentation
 
+_Click images below for video_
+
 ### UI
 
 [![Carpe Caelum UI](https://img.youtube.com/vi/83ozblglHic/0.jpg)](https://youtu.be/83ozblglHic)
@@ -81,12 +83,14 @@ Seize the Sky
 - Redis
 - Ruby / Rails
 - Node / NVM
+- API Keys for: MapBox, Thunderforest, Tomorrow.IO
 
-### Setting Up Redis
+### Redis
 
 #### Starting Redis
 
 ```sh
+cd carpe_caelum_api
 brew services start redis # or redis-server
 ```
 
@@ -103,6 +107,7 @@ redis-cli monitor
 Navigate to the Rails root directory:
 
 ```sh
+cd carpe_caelum_api
 rails s
 ```
 
@@ -111,6 +116,7 @@ rails s
 From the Rails root directory:
 
 ```sh
+cd carpe_caelum_api
 bundle exec rspec spec
 bundle exec rspec spec --format documentation
 ```
@@ -120,6 +126,7 @@ bundle exec rspec spec --format documentation
 #### Starting the Development Server
 
 ```sh
+cd carpe-caelum-frontend
 npm run dev
 ```
 
