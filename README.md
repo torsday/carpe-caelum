@@ -6,7 +6,7 @@ Seize the Sky
 
 ## Purpose
 
-- Get the weather for anywher you can click or address you can search.
+- Get the weather for anywhere you can click or address you can search.
 
 ## Presentation
 
@@ -28,8 +28,8 @@ Seize the Sky
 ### Backend
 
 - **Ruby on Rails**
-- **Architecture**: Follows Domain Driven Design and adheres to SOLID principles.
-- **API Functionality**: Utilizes Tomorrow.IO to get weather data.
+- **Architecture**: Follows Domain-Driven Design (DDD) and adheres to SOLID principles.
+- **API Functionality**: Utilizes Tomorrow.IO to retrieve weather data.
 - **Data Store**: Utilizes Redis for weather data storage, keyed by coordinates and time. Redis is chosen for its speed and built-in expiration.
 - **RBS and Steep** for type checking.
 
@@ -37,10 +37,42 @@ Seize the Sky
 
 - **React**
 - **GraphQL**
-- **File Structure**: Simplified due to backend-centric focus. Future iterations would modularize components into separate files.
 - **Geolocation API**: Facilitates location lookup. MapBox is used here.
-- **Map API**: Utilizing Thunderforest API.
+- **Map API**: Utilizes Thunderforest API.
 - **Styling**: Uses styled-components, aligning with React’s ethos of encapsulated components.
+
+### Systems Design Considerations
+
+#### Backend
+
+- **Scalability**:
+    - **Ruby on Rails**: Provides rapid development capabilities and can scale with appropriate optimizations.
+    - **Redis**: Efficiently handles large volumes of weather data, providing quick read/write operations.
+
+- **Resiliency**:
+    - **Redis**: Supports persistence and replication, enhancing fault tolerance and data reliability.
+    - **Domain-Driven Design (DDD)**: Encourages separation of concerns, making the system more robust, easier to maintain, and easier for large teams to build upon.
+
+- **Performance**:
+    - **Redis**: Chosen for its speed and ability to handle high throughput, ensuring low-latency access to weather data.
+
+- **Maintainability**:
+    - **SOLID principles**: Ensures clean, modular, and maintainable code.
+    - **RBS and Steep**: Enhances type safety, reducing runtime errors and improving code reliability.
+
+- **Security**:
+    - Not focusing on this for this particular exercise.
+
+#### Frontend
+
+- **Scalability**:
+    - **React and GraphQL**: Scalable technologies that can handle increasing frontend complexity and data requirements.
+
+- **Performance**:
+    - **GraphQL**: Efficient data fetching, reducing over-fetching and under-fetching issues.
+
+- **Maintainability**:
+    - **Styled-components**: Promotes encapsulated styling, making components easier to manage and modify.
 
 ## Getting Started
 
@@ -91,10 +123,10 @@ bundle exec rspec spec --format documentation
 npm run dev
 ```
 
-## With more time...
+## With More Time...
 
 - **Frontend Refactor**: Modularize components into individual files for better maintainability.
 - **Test Coverage**: Increase the scope and depth of testing.
 - **Error Handling**: Implement more detailed exception handling and HTTP status code responses.
 - **Cache Indicator UI**: I chose not to implement a UI feature indicating whether data was retrieved from the cache. This decision was based on time constraints and feeling I've expressed enough in the code to show the flow of how it would be done.
-
+- **Consider Testing FE**: As it's a small app, I wouldn't spend too much time on testing the frontend extensively. However, adding some basic unit tests for critical components and integration tests for key user flows would be beneficial.
