@@ -64,7 +64,7 @@ class WeatherRepository
     if cached_data
       return WeatherSnapshotFactory.from_json(cached_data)
     else
-      # We don't have the data cached, time to query Tomorrow.IO
+      # We don't have the data cached, now we to query Tomorrow.IO
       parsed_timeline = tomorrow_io_wrapper.get_parsed_weather_timeline_for(latitude: latitude, longitude: longitude)
       weather_snapshot_collection = WeatherFactory.build_weather_snapshots_from_tomorrow_io_timeline_resp(
         parsed_timeline
