@@ -17,7 +17,7 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 const client = new ApolloClient({
-  uri: 'http://localhost:3000/graphql', // Your Rails API URL
+  uri: 'http://localhost:3000/graphql',
   cache: new InMemoryCache(),
 });
 
