@@ -1,12 +1,19 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require_relative '../../../app/models/domain/weather_snapshot_collection'
 require_relative '../../../app/models/domain/weather_snapshot'
 
-
 RSpec.describe WeatherSnapshotCollection do
-  let(:snapshot1) { WeatherSnapshot.new(utc: '2023-07-03T12:00:00Z', temperature_apparent: 75.0, weather_description: 'Sunny') }
-  let(:snapshot2) { WeatherSnapshot.new(utc: '2023-07-03T13:00:00Z', temperature_apparent: 80.0, weather_description: 'Partly Cloudy') }
-  let(:snapshot3) { WeatherSnapshot.new(utc: '2023-07-03T14:00:00Z', temperature_apparent: 70.0, weather_description: 'Cloudy') }
+  let(:snapshot1) do
+    WeatherSnapshot.new(utc: '2023-07-03T12:00:00Z', temperature_apparent: 75.0, weather_description: 'Sunny')
+  end
+  let(:snapshot2) do
+    WeatherSnapshot.new(utc: '2023-07-03T13:00:00Z', temperature_apparent: 80.0, weather_description: 'Partly Cloudy')
+  end
+  let(:snapshot3) do
+    WeatherSnapshot.new(utc: '2023-07-03T14:00:00Z', temperature_apparent: 70.0, weather_description: 'Cloudy')
+  end
   let(:snapshots) do
     {
       '2023-07-03T12:00:00Z' => snapshot1,
@@ -14,7 +21,7 @@ RSpec.describe WeatherSnapshotCollection do
       '2023-07-03T14:00:00Z' => snapshot3
     }
   end
-  let(:collection) { WeatherSnapshotCollection.new(weather_snapshots: snapshots) }
+  let(:collection) { described_class.new(weather_snapshots: snapshots) }
 
   describe '#initialize' do
     it 'creates an instance of WeatherSnapshotCollection with correct attributes' do

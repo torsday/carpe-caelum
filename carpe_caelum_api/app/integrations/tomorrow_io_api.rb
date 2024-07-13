@@ -8,7 +8,7 @@ require 'stringio'
 require 'json'
 
 class TomorrowIoApi
-  BASE_URL = "https://api.tomorrow.io/v4/timelines"
+  BASE_URL = 'https://api.tomorrow.io/v4/timelines'
   FIELDS = %w[
     cloudCover
     precipitationIntensity
@@ -22,12 +22,12 @@ class TomorrowIoApi
     windGust
     windSpeed
   ].freeze
-  UNITS = "imperial"
-  TIME_STEPS = ["1h"].freeze
-  START_TIME = "now"
-  END_TIME = "nowPlus5d"
+  UNITS = 'imperial'
+  TIME_STEPS = ['1h'].freeze
+  START_TIME = 'now'
+  END_TIME = 'nowPlus5d'
   MAX_RETRIES = 5
-  LAT_LON_PRECISION = ENV.fetch("LAT_LON_PRECISION", 8).to_i
+  LAT_LON_PRECISION = ENV.fetch('LAT_LON_PRECISION', 8).to_i
 
   # Fetches and parses the weather timeline for a given latitude and longitude.
   #
@@ -50,11 +50,11 @@ class TomorrowIoApi
         sleep(sleep_time)
         retry
       else
-        log_error("Max retries reached", e)
+        log_error('Max retries reached', e)
         nil
       end
-    rescue => e
-      log_error("Error fetching weather data", e)
+    rescue StandardError => e
+      log_error('Error fetching weather data', e)
       nil
     end
   end
@@ -84,8 +84,8 @@ class TomorrowIoApi
   # @param longitude [Float] the longitude of the location
   # @return [String] the generated cache key
   def cache_key(latitude, longitude)
-    key_lat = (latitude * 10**LAT_LON_PRECISION).round
-    key_lon = (longitude * 10**LAT_LON_PRECISION).round
+    key_lat = (latitude * (10**LAT_LON_PRECISION)).round
+    key_lon = (longitude * (10**LAT_LON_PRECISION)).round
     "weather-timeline:#{key_lat}:#{key_lon}"
   end
 
@@ -106,7 +106,7 @@ class TomorrowIoApi
 
     response
   rescue StandardError => e
-    log_error("HTTP request failed", e)
+    log_error('HTTP request failed', e)
     nil
   end
 
@@ -117,9 +117,9 @@ class TomorrowIoApi
   # @return [Net::HTTP::Post] the constructed HTTP request
   def build_request(uri, location)
     request = Net::HTTP::Post.new(uri)
-    request["accept"] = 'application/json'
-    request["Accept-Encoding"] = 'gzip'
-    request["content-type"] = 'application/json'
+    request['accept'] = 'application/json'
+    request['Accept-Encoding'] = 'gzip'
+    request['content-type'] = 'application/json'
     request.body = request_body(location).to_json
     request
   end
@@ -138,7 +138,7 @@ class TomorrowIoApi
   # @param response [Net::HTTPResponse] the HTTP response
   # @raise [Net::HTTP::Persistent::Error] if the response code indicates rate limiting
   def handle_rate_limiting(response)
-    raise Net::HTTP::Persistent::Error, "Too Many Requests" if response.code == "429"
+    raise Net::HTTP::Persistent::Error, 'Too Many Requests' if response.code == '429'
   end
 
   # Constructs the body for the API request.
@@ -147,7 +147,7 @@ class TomorrowIoApi
   # @return [Hash] the request body as a hash
   def request_body(location)
     {
-      location: location,
+      location:,
       fields: FIELDS,
       units: UNITS,
       timesteps: TIME_STEPS,
@@ -162,13 +162,13 @@ class TomorrowIoApi
   # @return [Hash, nil] the parsed JSON timeline or nil if an error occurs
   def process_response(response)
     if response.nil?
-      Rails.logger.error "No response received"
+      Rails.logger.error 'No response received'
       return nil
     end
 
     Rails.logger.info "Response received with code: #{response.code} and message: #{response.message}"
 
-    if response.code == "200"
+    if response.code == '200'
       raw_timeline = decompress_response(response)
       parse_response(raw_timeline)
     else
@@ -198,7 +198,7 @@ class TomorrowIoApi
 
     JSON.parse(raw_timeline)
   rescue JSON::ParserError => e
-    log_error("JSON parsing failed", e)
+    log_error('JSON parsing failed', e)
     nil
   end
 end

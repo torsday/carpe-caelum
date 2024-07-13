@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # D = Steep::Diagnostic
 #
 # target :lib do
@@ -29,9 +31,9 @@
 # end
 
 target :app do
-  signature "rbs"
+  signature 'rbs'
 
-  check "app"
-  ignore "test"
-  ignore "spec"
+  check 'app'
+  ignore 'test'
+  ignore 'spec'
 end

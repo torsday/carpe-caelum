@@ -24,8 +24,6 @@ class WeatherSnapshotFactory
     create_weather_snapshot_from_hash(hash)
   end
 
-  private
-
   # Creates a WeatherSnapshot object from a hash.
   #
   # @param hash [Hash] The hash containing the weather snapshot data.
@@ -43,7 +41,7 @@ class WeatherSnapshotFactory
   # @param utc_str [String] The string representation of the UTC time.
   # @return [Time] The Time object created from the string.
   def self.parse_time(utc_str)
-    Time.parse(utc_str)
+    Time.zone.parse(utc_str)
   rescue ArgumentError
     Rails.logger.error "Invalid time format: #{utc_str}"
     nil

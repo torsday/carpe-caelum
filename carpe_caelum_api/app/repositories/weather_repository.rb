@@ -14,9 +14,13 @@ class WeatherRepository
   #
   # @raise [ArgumentError] if any argument is nil or invalid
   def initialize(redis_client:, tomorrow_io_wrapper:, latitude_longitude_precision:)
-    raise ArgumentError, "redis_client cannot be nil" if redis_client.nil?
-    raise ArgumentError, "tomorrow_io_wrapper cannot be nil" if tomorrow_io_wrapper.nil?
-    raise ArgumentError, "latitude_longitude_precision must be a non-negative integer" unless latitude_longitude_precision.is_a?(Integer) && latitude_longitude_precision >= 0
+    raise ArgumentError, 'redis_client cannot be nil' if redis_client.nil?
+    raise ArgumentError, 'tomorrow_io_wrapper cannot be nil' if tomorrow_io_wrapper.nil?
+
+    unless latitude_longitude_precision.is_a?(Integer) && latitude_longitude_precision >= 0
+      raise ArgumentError,
+            'latitude_longitude_precision must be a non-negative integer'
+    end
 
     @redis_client = redis_client
     @latitude_longitude_precision = latitude_longitude_precision
@@ -30,7 +34,7 @@ class WeatherRepository
   # @return [Float] the 'feels like' temperature
   def get_current_feels_like_temperature_for(latitude:, longitude:)
     validate_coordinates(latitude, longitude)
-    snapshot = get_snapshot_for(latitude: latitude, longitude: longitude, utc: get_current_utc_rounded_down)
+    snapshot = get_snapshot_for(latitude:, longitude:, utc: get_current_utc_rounded_down)
     snapshot.temperature_apparent
   end
 
@@ -41,7 +45,7 @@ class WeatherRepository
   # @return [String] the weather description
   def get_current_conditions_for(latitude:, longitude:)
     validate_coordinates(latitude, longitude)
-    snapshot = get_snapshot_for(latitude: latitude, longitude: longitude, utc: get_current_utc_rounded_down)
+    snapshot = get_snapshot_for(latitude:, longitude:, utc: get_current_utc_rounded_down)
     snapshot.weather_description
   end
 
@@ -53,13 +57,16 @@ class WeatherRepository
   # @return [Hash] a hash containing the high and low 'feels like' temperatures
   def get_feels_like_high_and_low_for(latitude, longitude, window_in_hours)
     validate_coordinates(latitude, longitude)
-    raise ArgumentError, "window_in_hours must be a positive integer" unless window_in_hours.is_a?(Integer) && window_in_hours > 0
+    unless window_in_hours.is_a?(Integer) && window_in_hours.positive?
+      raise ArgumentError,
+            'window_in_hours must be a positive integer'
+    end
 
     current_utc = get_current_utc_rounded_down
     snapshot_hash = {}
     (0...window_in_hours).each do |n|
       query_utc = current_utc + (n * 3600) # Using 3600 seconds (1 hour) instead of 60*60
-      snapshot = get_snapshot_for(latitude: latitude, longitude: longitude, utc: query_utc)
+      snapshot = get_snapshot_for(latitude:, longitude:, utc: query_utc)
       snapshot_hash[query_utc] = snapshot
     end
 
@@ -83,17 +90,17 @@ class WeatherRepository
   # @raise [ArgumentError] if the coordinates or time are invalid
   def get_snapshot_for(latitude:, longitude:, utc:)
     validate_coordinates(latitude, longitude)
-    raise ArgumentError, "utc must be a Time object" unless utc.is_a?(Time)
+    raise ArgumentError, 'utc must be a Time object' unless utc.is_a?(Time)
 
-    redis_key = get_tomorrow_io_timeline_redis_key(latitude: latitude, longitude: longitude, utc: utc)
+    redis_key = get_tomorrow_io_timeline_redis_key(latitude:, longitude:, utc:)
     cached_data = redis_client.get(redis_key)
 
     if cached_data
       WeatherSnapshotFactory.from_json(cached_data)
     else
-      query_external_api_for_weather_snapshot(latitude: latitude, longitude: longitude, utc: utc)
+      query_external_api_for_weather_snapshot(latitude:, longitude:, utc:)
     end
-  rescue => e
+  rescue StandardError => e
     Rails.logger.error "Error in get_snapshot_for: #{e.message}"
     Rails.logger.error e.backtrace.join("\n")
     raise
@@ -106,14 +113,14 @@ class WeatherRepository
   # @param utc [Time] the UTC time
   # @return [WeatherSnapshot] the weather snapshot
   def query_external_api_for_weather_snapshot(latitude:, longitude:, utc:)
-    parsed_timeline = tomorrow_io_wrapper.get_parsed_weather_timeline_for(latitude: latitude, longitude: longitude)
+    parsed_timeline = tomorrow_io_wrapper.get_parsed_weather_timeline_for(latitude:, longitude:)
     weather_snapshot_collection = WeatherFactory.build_weather_snapshots_from_tomorrow_io_timeline_resp(parsed_timeline)
 
     weather_snapshot_collection.get_list_of_snapshots.each do |snapshot|
-      redis_key = get_tomorrow_io_timeline_redis_key(latitude: latitude, longitude: longitude, utc: snapshot.utc)
+      redis_key = get_tomorrow_io_timeline_redis_key(latitude:, longitude:, utc: snapshot.utc)
       serialized_snapshot = WeatherSnapshotFactory.to_json(snapshot)
 
-      Rails.logger.debug "Saving to Redis with key #{redis_key}: #{serialized_snapshot.inspect}"
+      Rails.logger.debug { "Saving to Redis with key #{redis_key}: #{serialized_snapshot.inspect}" }
 
       redis_client.set(redis_key, serialized_snapshot)
     end
@@ -130,8 +137,8 @@ class WeatherRepository
   def get_tomorrow_io_timeline_redis_key(latitude:, longitude:, utc:)
     raise TypeError, "Expected 'utc' to be an instance of Time, but got #{utc.class}" unless utc.is_a?(Time)
 
-    key_lat = (latitude * 10**latitude_longitude_precision).round
-    key_lon = (longitude * 10**latitude_longitude_precision).round
+    key_lat = (latitude * (10**latitude_longitude_precision)).round
+    key_lon = (longitude * (10**latitude_longitude_precision)).round
 
     "tomorrow-timeline:#{key_lat},#{key_lon}:#{utc.iso8601}"
   end
@@ -150,7 +157,10 @@ class WeatherRepository
   #
   # @raise [ArgumentError] if the coordinates are invalid
   def validate_coordinates(latitude, longitude)
-    raise ArgumentError, "latitude must be between -90 and 90" unless latitude.is_a?(Numeric) && latitude.between?(-90, 90)
-    raise ArgumentError, "longitude must be between -180 and 180" unless longitude.is_a?(Numeric) && longitude.between?(-180, 180)
+    raise ArgumentError, 'latitude must be between -90 and 90' unless latitude.is_a?(Numeric) && latitude.between?(-90,
+                                                                                                                   90)
+    raise ArgumentError, 'longitude must be between -180 and 180' unless longitude.is_a?(Numeric) && longitude.between?(
+      -180, 180
+    )
   end
 end

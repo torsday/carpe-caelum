@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # spec/graphql/queries/weather_query_spec.rb
 
 require 'rails_helper'
@@ -14,10 +16,14 @@ RSpec.describe Queries::WeatherQuery, type: :request do
 
     before do
       allow(WeatherService).to receive(:new).and_return(weather_service)
-      allow(weather_service).to receive(:get_current_feels_like_temperature_for).with(latitude: latitude, longitude: longitude).and_return(current_temperature)
-      allow(weather_service).to receive(:get_5_hr_temperature_low_for).with(latitude: latitude, longitude: longitude).and_return(low_temperature)
-      allow(weather_service).to receive(:get_5_hr_temperature_high_for).with(latitude: latitude, longitude: longitude).and_return(high_temperature)
-      allow(weather_service).to receive(:get_current_conditions_for).with(latitude: latitude, longitude: longitude).and_return(description)
+      allow(weather_service).to receive(:get_current_feels_like_temperature_for).with(latitude:,
+                                                                                      longitude:).and_return(current_temperature)
+      allow(weather_service).to receive(:get_5_hr_temperature_low_for).with(latitude:,
+                                                                            longitude:).and_return(low_temperature)
+      allow(weather_service).to receive(:get_5_hr_temperature_high_for).with(latitude:,
+                                                                             longitude:).and_return(high_temperature)
+      allow(weather_service).to receive(:get_current_conditions_for).with(latitude:,
+                                                                          longitude:).and_return(description)
     end
 
     context 'when the query is successful' do
@@ -28,12 +34,12 @@ RSpec.describe Queries::WeatherQuery, type: :request do
         data = json['data']['weather']
 
         expect(data).to include(
-                          'temperature' => current_temperature,
-                          'fiveHrTemperatureLow' => low_temperature,
-                          'fiveHrTemperatureHigh' => high_temperature,
-                          'description' => description,
-                          'errorMessage' => nil
-                        )
+          'temperature' => current_temperature,
+          'fiveHrTemperatureLow' => low_temperature,
+          'fiveHrTemperatureHigh' => high_temperature,
+          'description' => description,
+          'errorMessage' => nil
+        )
       end
     end
 
@@ -41,7 +47,8 @@ RSpec.describe Queries::WeatherQuery, type: :request do
       let(:error_message) { 'An error occurred' }
 
       before do
-        allow(weather_service).to receive(:get_current_feels_like_temperature_for).and_raise(StandardError, error_message)
+        allow(weather_service).to receive(:get_current_feels_like_temperature_for).and_raise(StandardError,
+                                                                                             error_message)
       end
 
       it 'returns an error message' do
@@ -51,12 +58,12 @@ RSpec.describe Queries::WeatherQuery, type: :request do
         data = json['data']['weather']
 
         expect(data).to include(
-                          'temperature' => nil,
-                          'fiveHrTemperatureLow' => nil,
-                          'fiveHrTemperatureHigh' => nil,
-                          'description' => nil,
-                          'errorMessage' => error_message
-                        )
+          'temperature' => nil,
+          'fiveHrTemperatureLow' => nil,
+          'fiveHrTemperatureHigh' => nil,
+          'description' => nil,
+          'errorMessage' => error_message
+        )
       end
     end
   end

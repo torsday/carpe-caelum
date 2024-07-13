@@ -8,10 +8,10 @@ RSpec.describe WeatherSnapshot do
   let(:temperature_apparent) { 75.0 }
   let(:weather_description) { 'Sunny' }
   let(:weather_snapshot) do
-    WeatherSnapshot.new(
+    described_class.new(
       utc: utc_time,
-      temperature_apparent: temperature_apparent,
-      weather_description: weather_description
+      temperature_apparent:,
+      weather_description:
     )
   end
 
@@ -23,30 +23,30 @@ RSpec.describe WeatherSnapshot do
     end
 
     it 'raises an error if utc is not provided' do
-      expect {
-        WeatherSnapshot.new(
-          temperature_apparent: temperature_apparent,
-          weather_description: weather_description
+      expect do
+        described_class.new(
+          temperature_apparent:,
+          weather_description:
         )
-      }.to raise_error(ArgumentError)
+      end.to raise_error(ArgumentError)
     end
 
     it 'raises an error if temperature_apparent is not provided' do
-      expect {
-        WeatherSnapshot.new(
+      expect do
+        described_class.new(
           utc: utc_time,
-          weather_description: weather_description
+          weather_description:
         )
-      }.to raise_error(ArgumentError)
+      end.to raise_error(ArgumentError)
     end
 
     it 'raises an error if weather_description is not provided' do
-      expect {
-        WeatherSnapshot.new(
+      expect do
+        described_class.new(
           utc: utc_time,
-          temperature_apparent: temperature_apparent
+          temperature_apparent:
         )
-      }.to raise_error(ArgumentError)
+      end.to raise_error(ArgumentError)
     end
   end
 

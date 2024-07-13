@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :weather_snapshot do
     utc { Time.now.utc }

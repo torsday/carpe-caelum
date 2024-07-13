@@ -3,8 +3,8 @@
 class WeatherService
   attr_accessor :weather_repository
 
-  REDIS_CACHE_EXPIRATION_IN_SEC = ENV.fetch("REDIS_CACHE_EXPIRATION_IN_MIN", 30).to_i * 60 # Translate to seconds
-  LAT_LON_PRECISION = ENV.fetch("LAT_LON_PRECISION") { 5 }.to_i
+  REDIS_CACHE_EXPIRATION_IN_SEC = ENV.fetch('REDIS_CACHE_EXPIRATION_IN_MIN', 30).to_i * 60 # Translate to seconds
+  LAT_LON_PRECISION = ENV.fetch('LAT_LON_PRECISION', 5).to_i
 
   # Initializes a new WeatherService.
   #
@@ -19,7 +19,7 @@ class WeatherService
   # @param longitude [Float] the longitude
   # @return [Float] the 'feels like' temperature
   def get_current_feels_like_temperature_for(latitude:, longitude:)
-    weather_repository.get_current_feels_like_temperature_for(latitude: latitude, longitude: longitude)
+    weather_repository.get_current_feels_like_temperature_for(latitude:, longitude:)
   end
 
   # Retrieves the low 'feels like' temperature for the next 5 hours for the given coordinates.
@@ -28,7 +28,7 @@ class WeatherService
   # @param longitude [Float] the longitude
   # @return [Float] the low 'feels like' temperature
   def get_5_hr_temperature_low_for(latitude:, longitude:)
-    get_feels_like_high_and_low_for(latitude: latitude, longitude: longitude, window_in_hours: 5)[:temp_low]
+    get_feels_like_high_and_low_for(latitude:, longitude:, window_in_hours: 5)[:temp_low]
   end
 
   # Retrieves the high 'feels like' temperature for the next 5 hours for the given coordinates.
@@ -37,7 +37,7 @@ class WeatherService
   # @param longitude [Float] the longitude
   # @return [Float] the high 'feels like' temperature
   def get_5_hr_temperature_high_for(latitude:, longitude:)
-    get_feels_like_high_and_low_for(latitude: latitude, longitude: longitude, window_in_hours: 5)[:temp_high]
+    get_feels_like_high_and_low_for(latitude:, longitude:, window_in_hours: 5)[:temp_high]
   end
 
   # Retrieves the high and low 'feels like' temperatures for a given time window.
@@ -56,6 +56,6 @@ class WeatherService
   # @param longitude [Float] the longitude
   # @return [String] the weather description
   def get_current_conditions_for(latitude:, longitude:)
-    weather_repository.get_current_conditions_for(latitude: latitude, longitude: longitude)
+    weather_repository.get_current_conditions_for(latitude:, longitude:)
   end
 end

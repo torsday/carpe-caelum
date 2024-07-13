@@ -9,13 +9,14 @@ class GraphqlController < ApplicationController
 
     Rails.logger.info "Executing GraphQL query: #{query} with variables: #{variables} and operation_name: #{operation_name}"
 
-    result = CarpeCaelumApiSchema.execute(query, variables: variables, context: context, operation_name: operation_name)
+    result = CarpeCaelumApiSchema.execute(query, variables:, context:, operation_name:)
 
     Rails.logger.info "GraphQL execution result: #{result.to_json}"
 
     render json: result
   rescue StandardError => e
     raise e unless Rails.env.development?
+
     handle_error_in_development(e)
   end
 
@@ -40,6 +41,6 @@ class GraphqlController < ApplicationController
     logger.error e.message
     logger.error e.backtrace.join("\n")
 
-    render json: { errors: [{ message: e.message, backtrace: e.backtrace }], data: {} }, status: 500
+    render json: { errors: [{ message: e.message, backtrace: e.backtrace }], data: {} }, status: :internal_server_error
   end
 end
