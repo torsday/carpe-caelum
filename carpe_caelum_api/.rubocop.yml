@@ -1,0 +1,64 @@
+# .rubocop.yml
+
+require:
+  - rubocop-rails
+  - rubocop-rspec
+  - rubocop-capybara
+  - rubocop-factory_bot
+  - rubocop-graphql
+  - rubocop-minitest
+  - rubocop-rspec_rails
+
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.1
+
+# Layout settings
+Layout/LineLength:
+  Max: 120
+
+Layout/SpaceAroundEqualsInParameterDefault:
+  Enabled: true
+
+Layout/MultilineOperationIndentation:
+  Enabled: true
+
+Layout/SpaceInsideBlockBraces:
+  Enabled: true
+
+Layout/SpaceInsideHashLiteralBraces:
+  Enabled: true
+
+# Lint settings
+Lint/SuppressedException:
+  Enabled: true
+
+# Rails-specific settings
+Rails:
+  Enabled: true
+
+Rails/TimeZone:
+  Enabled: true
+
+# RSpec-specific settings
+RSpec/ExampleLength:
+  Max: 10
+
+# Additional settings for other extensions
+
+# rubocop-capybara settings
+Capybara:
+  Enabled: true
+
+# rubocop-factory_bot settings
+FactoryBot:
+  Enabled: true
+
+# rubocop-graphql settings
+GraphQL:
+  Naming/FieldName:
+    Enabled: true
+
+# rubocop-minitest settings
+Minitest:
+  Enabled: true
