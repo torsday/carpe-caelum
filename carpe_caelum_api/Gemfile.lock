@@ -125,9 +125,12 @@ GEM
       railties (>= 5.0.0)
     faker (3.4.1)
       i18n (>= 1.8.11, < 2)
-    ffi (1.17.0)
+    ffi (1.17.0-aarch64-linux-gnu)
+    ffi (1.17.0-arm-linux-gnu)
     ffi (1.17.0-arm64-darwin)
+    ffi (1.17.0-x86-linux-gnu)
     ffi (1.17.0-x86_64-darwin)
+    ffi (1.17.0-x86_64-linux-gnu)
     fileutils (1.7.2)
     globalid (1.2.1)
       activesupport (>= 6.1)
@@ -345,10 +348,10 @@ GEM
       simplecov_json_formatter (~> 0.1)
     simplecov-html (0.12.3)
     simplecov_json_formatter (0.1.4)
-    spring (2.1.1)
-    spring-watcher-listen (2.0.1)
+    spring (4.2.1)
+    spring-watcher-listen (2.1.0)
       listen (>= 2.7, < 4.0)
-      spring (>= 1.2, < 3.0)
+      spring (>= 4)
     steep (1.7.1)
       activesupport (>= 5.1)
       concurrent-ruby (>= 1.1.10)
@@ -438,7 +441,7 @@ DEPENDENCIES
   shoulda-matchers (~> 5.0)
   simplecov
   spring
-  spring-watcher-listen (~> 2.0.0)
+  spring-watcher-listen (~> 2.1.0)
   steep
   web-console (>= 4.1.0)
   webdrivers
