@@ -16,7 +16,7 @@ interface WeatherMapProps {
     setPosition: (position: [number, number]) => void
     LAT_LON_PRECISION: number
     getWeather: (options?: {
-        variables: { input: { input: { location: string } } }
+        variables: { latitude: number; longitude: number }
     }) => Promise<{ data: unknown }>
 }
 
@@ -24,7 +24,7 @@ interface LocationMarkerProps {
     LAT_LON_PRECISION: number
     setPosition: (position: [number, number]) => void
     getWeather: (options?: {
-        variables: { input: { input: { location: string } } }
+        variables: { latitude: number; longitude: number }
     }) => Promise<{ data: unknown }>
     position: [number, number] | null
 }
@@ -36,17 +36,15 @@ const LocationMarker: React.FC<LocationMarkerProps> = ({
     getWeather,
     position,
 }) => {
+    // useMapEvents hook to handle map click events
     useMapEvents({
         click(e: LeafletMouseEvent) {
-            const lat = e.latlng.lat.toFixed(LAT_LON_PRECISION)
-            const lon = e.latlng.lng.toFixed(LAT_LON_PRECISION)
-            const newPosition: [number, number] = [
-                parseFloat(lat),
-                parseFloat(lon),
-            ]
+            const lat = parseFloat(e.latlng.lat.toFixed(LAT_LON_PRECISION))
+            const lon = parseFloat(e.latlng.lng.toFixed(LAT_LON_PRECISION))
+            const newPosition: [number, number] = [lat, lon]
             setPosition(newPosition)
             getWeather({
-                variables: { input: { input: { location: `${lat},${lon}` } } },
+                variables: { latitude: lat, longitude: lon },
             })
         },
     })
@@ -63,6 +61,7 @@ const WeatherMap: React.FC<WeatherMapProps> = ({
 }) => {
     const mapRef = useRef<LeafletMap>(null)
 
+    // Effect to fly to the new position when it changes
     useEffect(() => {
         if (position && mapRef.current) {
             mapRef.current.flyTo(position, 15) // Adjusts the zoom level when flying to a location.
@@ -78,7 +77,7 @@ const WeatherMap: React.FC<WeatherMapProps> = ({
 
     return (
         <MapContainerStyled
-            center={position || [37.334587, -122.008753]}
+            center={position || [37.334587, -122.008753]} // Default center position
             zoom={13}
             ref={mapRef}
         >
