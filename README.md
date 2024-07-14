@@ -137,3 +137,24 @@ npm run dev
 - **Error Handling**: Implement more detailed exception handling and HTTP status code responses.
 - **Cache Indicator UI**: I chose not to implement a UI feature indicating whether data was retrieved from the cache. This decision was based on time constraints and feeling I've expressed enough in the code to show the flow of how it would be done.
 - **Consider Testing FE**: As it's a small app, I wouldn't spend too much time on testing the frontend extensively. However, adding some basic unit tests for critical components and integration tests for key user flows would be beneficial.
+
+# CI
+
+- I've created a CI process that checks the frontend and backend before merging dev to main. Since I'm one person this avoids PRs that are only for my eyes, though in practice I wouldn't merge without PR acceptance.
+
+check it out here: <https://github.com/torsday/carpe-caelum/actions>
+
+# Linting
+
+```sh
+bundle exec rubocop
+bundle exec rails_best_practices .
+bundle exec rubocop --auto-correct
+```
+
+Lint, Prettyfy, and fix what you can
+
+```sh
+npm run lint
+```
+
