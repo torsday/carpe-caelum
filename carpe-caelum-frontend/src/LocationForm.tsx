@@ -215,7 +215,7 @@ const LocationForm: React.FC = () => {
                 `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(location)}.json`,
                 {
                     params: {
-                        access_token: process.env.MAPBOX_API_TOKEN,
+                        access_token: import.meta.env.VITE_MAPBOX_API_TOKEN,
                     },
                 }
             )

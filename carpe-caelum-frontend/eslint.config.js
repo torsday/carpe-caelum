@@ -7,6 +7,7 @@ import reactPlugin from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
 import prettierPlugin from 'eslint-plugin-prettier'
 import prettierConfig from 'eslint-config-prettier'
+import process from 'process'
 
 // Initialize compatibility helper
 const compat = new FlatCompat({
@@ -26,6 +27,11 @@ export default [
             },
             globals: globals.browser,
         },
+        settings: {
+            react: {
+                version: 'detect',
+            },
+        },
         plugins: {
             '@typescript-eslint': ts,
             react: reactPlugin,
@@ -42,7 +48,10 @@ export default [
                 'error',
                 { argsIgnorePattern: '^_' },
             ],
+            '@typescript-eslint/no-explicit-any': 'error',
+            'no-undef': 'error',
             'react/prop-types': 'off',
+            'react-hooks/exhaustive-deps': 'warn',
         },
     },
     // Prettier configuration

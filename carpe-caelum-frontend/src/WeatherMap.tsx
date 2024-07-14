@@ -10,25 +10,32 @@ const MapContainerStyled = styled(MapContainer)`
     margin-top: 16px;
 `
 
-// Props interface for the WeatherMap component
+// Define types for props and the response of getWeather
 interface WeatherMapProps {
     position: [number, number] | null
     setPosition: (position: [number, number]) => void
     LAT_LON_PRECISION: number
     getWeather: (options?: {
         variables: { input: { input: { location: string } } }
-    }) => Promise<any>
+    }) => Promise<{ data: unknown }>
 }
 
-// Functional component for the LocationMarker
-const LocationMarker: React.FC<{
+interface LocationMarkerProps {
     LAT_LON_PRECISION: number
     setPosition: (position: [number, number]) => void
     getWeather: (options?: {
         variables: { input: { input: { location: string } } }
-    }) => Promise<any>
+    }) => Promise<{ data: unknown }>
     position: [number, number] | null
-}> = ({ LAT_LON_PRECISION, setPosition, getWeather, position }) => {
+}
+
+// Functional component for the LocationMarker
+const LocationMarker: React.FC<LocationMarkerProps> = ({
+    LAT_LON_PRECISION,
+    setPosition,
+    getWeather,
+    position,
+}) => {
     useMapEvents({
         click(e: LeafletMouseEvent) {
             const lat = e.latlng.lat.toFixed(LAT_LON_PRECISION)
@@ -63,7 +70,7 @@ const WeatherMap: React.FC<WeatherMapProps> = ({
     }, [position])
 
     // Fetch the API key from environment variables
-    const apiKey = process.env.THUNDERFOREST_API_KEY
+    const apiKey = import.meta.env.VITE_THUNDERFOREST_API_KEY
 
     if (!apiKey) {
         return <div>Error: API key for Thunderforest is not defined.</div>
