@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
+// Styled component for the form
 const Form = styled.form`
     display: flex;
     flex-direction: column;
@@ -8,6 +9,7 @@ const Form = styled.form`
     margin-top: 16px;
 `
 
+// Styled component for the input container
 const InputContainer = styled.div`
     display: flex;
     align-items: center;
@@ -17,6 +19,7 @@ const InputContainer = styled.div`
     justify-content: center;
 `
 
+// Styled component for the input field
 const Input = styled.input`
     padding: 8px;
     font-size: 16px;
@@ -25,6 +28,7 @@ const Input = styled.input`
     margin-right: 8px;
 `
 
+// Styled component for the button
 const Button = styled.button`
     padding: 8px 16px;
     font-size: 16px;
@@ -44,35 +48,35 @@ const Button = styled.button`
     }
 `
 
+// Define types for props
 interface FormComponentProps {
     location: string
-    setLocation: React.Dispatch<React.SetStateAction<string>>
+    setLocation: (location: string) => void
     handleGeolocation: () => void
     handleSubmit: (e: React.FormEvent) => void
 }
 
+// Functional component for the form
 const FormComponent: React.FC<FormComponentProps> = ({
     location,
     setLocation,
     handleGeolocation,
     handleSubmit,
-}) => {
-    return (
-        <Form onSubmit={handleSubmit}>
-            <InputContainer>
-                <Input
-                    type="text"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    placeholder="Enter location"
-                />
-                <Button type="button" onClick={handleGeolocation}>
-                    Use My Location
-                </Button>
-            </InputContainer>
-            <Button type="submit">Get Weather</Button>
-        </Form>
-    )
-}
+}) => (
+    <Form onSubmit={handleSubmit}>
+        <InputContainer>
+            <Input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="Enter location"
+            />
+            <Button type="button" onClick={handleGeolocation}>
+                Use My Location
+            </Button>
+        </InputContainer>
+        <Button type="submit">Get Weather</Button>
+    </Form>
+)
 
 export default FormComponent

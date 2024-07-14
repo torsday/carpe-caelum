@@ -2,10 +2,12 @@ import React from 'react'
 import styled from 'styled-components'
 import { WeatherData } from '../interfaces/weatherInterfaces'
 
+// Styled component for the ResultContainer
 const ResultContainerStyled = styled.div`
     margin-top: 16px;
 `
 
+// Styled component for displaying temperature range
 const TemperatureRange = styled.p`
     font-size: 1.2rem;
     font-weight: bold;
@@ -20,27 +22,39 @@ const TemperatureRange = styled.p`
     }
 `
 
+// Interface for the props of the ResultContainer component
 interface ResultContainerProps {
     weatherData: WeatherData | null
 }
 
+// Functional component to display weather results
 const ResultContainer: React.FC<ResultContainerProps> = ({ weatherData }) => {
+    // Return null if no weather data is available
+    if (!weatherData || !weatherData.weather) {
+        return null
+    }
+
+    // Deconstruct the weather data
+    const {
+        temperature,
+        fiveHrTemperatureLow,
+        fiveHrTemperatureHigh,
+        description,
+        errorMessage,
+    } = weatherData.weather
+
     return (
         <ResultContainerStyled>
             <p>5 Hour Forecast (Low &lt; Present &lt; High) in °F</p>
             <TemperatureRange>
-                <span>{weatherData?.weather.fiveHrTemperatureLow}°F</span>
+                <span>{fiveHrTemperatureLow}°F</span>
                 &lt;
-                <span>{weatherData?.weather.temperature}°F</span>
+                <span>{temperature}°F</span>
                 &lt;
-                <span>{weatherData?.weather.fiveHrTemperatureHigh}°F</span>
+                <span>{fiveHrTemperatureHigh}°F</span>
             </TemperatureRange>
-            {weatherData?.weather.description && (
-                <p>{weatherData.weather.description}</p>
-            )}
-            {weatherData?.weather.errorMessage && (
-                <p>Error: {weatherData.weather.errorMessage}</p>
-            )}
+            {description && <p>{description}</p>}
+            {errorMessage && <p>Error: {errorMessage}</p>}
         </ResultContainerStyled>
     )
 }
