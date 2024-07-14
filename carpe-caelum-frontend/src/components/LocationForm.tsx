@@ -5,8 +5,9 @@ import debounce from 'lodash.debounce'
 import axios from 'axios'
 import 'leaflet/dist/leaflet.css'
 import WeatherMap from './WeatherMap'
+import ResultContainer from './ResultContainer'
+import { WeatherData } from '../interfaces/weatherInterfaces'
 
-// GraphQL query to fetch weather data
 const GET_WEATHER = gql`
     query GetWeather($latitude: Float!, $longitude: Float!) {
         weather(latitude: $latitude, longitude: $longitude) {
@@ -19,7 +20,6 @@ const GET_WEATHER = gql`
     }
 `
 
-// Styled components for the UI
 const PageContainer = styled.div`
     background-color: #002b36;
     display: flex;
@@ -76,24 +76,6 @@ const Button = styled.button`
     }
 `
 
-const ResultContainer = styled.div`
-    margin-top: 16px;
-`
-
-const TemperatureRange = styled.p`
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #b58900;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    span {
-        margin: 0 8px;
-        color: #268bd2;
-    }
-`
-
 const Header = styled.h1`
     color: #b58900;
     font-family: 'Luxurious Roman', serif;
@@ -108,22 +90,9 @@ const Header = styled.h1`
     }
 `
 
-// Constants
 const LAT_LON_PRECISION = 6
 const DEBOUNCE_DELAY = 1000
 
-// Interface for weather data
-interface WeatherData {
-    weather: {
-        temperature: number
-        fiveHrTemperatureLow: number
-        fiveHrTemperatureHigh: number
-        description: string
-        errorMessage: string
-    }
-}
-
-// LocationForm component
 const LocationForm: React.FC = () => {
     const [location, setLocation] = useState('')
     const [position, setPosition] = useState<[number, number] | null>(null)
@@ -139,18 +108,12 @@ const LocationForm: React.FC = () => {
         },
     })
 
-    // Handle form submission to fetch weather data
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
         if (position) {
             const [latitude, longitude] = position
-            console.log('Fetching weather for position:', {
-                latitude,
-                longitude,
-            })
             refetch({ latitude, longitude })
                 .then((response) => {
-                    console.log('Refetch response: ', response.data)
                     setWeatherData(response.data)
                 })
                 .catch((err) => {
@@ -161,7 +124,6 @@ const LocationForm: React.FC = () => {
         }
     }
 
-    // Handle geolocation to get the user's current position
     const handleGeolocation = useCallback(() => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -170,7 +132,6 @@ const LocationForm: React.FC = () => {
                         position.coords.latitude.toFixed(LAT_LON_PRECISION)
                     const lon =
                         position.coords.longitude.toFixed(LAT_LON_PRECISION)
-                    console.log('Geolocation position:', { lat, lon })
                     setLocation(`${lat},${lon}`)
                     setPosition([parseFloat(lat), parseFloat(lon)])
                 },
@@ -184,22 +145,15 @@ const LocationForm: React.FC = () => {
         }
     }, [])
 
-    // Fetch geolocation on component mount
     useEffect(() => {
         handleGeolocation()
     }, [handleGeolocation])
 
-    // Refetch weather data when position changes
     useEffect(() => {
         if (position) {
             const [latitude, longitude] = position
-            console.log('Refetching weather for position:', {
-                latitude,
-                longitude,
-            })
             refetch({ latitude, longitude })
                 .then((response) => {
-                    console.log('Refetch response: ', response.data)
                     setWeatherData(response.data)
                 })
                 .catch((err) => {
@@ -208,11 +162,12 @@ const LocationForm: React.FC = () => {
         }
     }, [position, refetch])
 
-    // Geocode location input to get latitude and longitude
     const geocodeLocation = async (location: string) => {
         try {
             const response = await axios.get(
-                `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(location)}.json`,
+                `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+                    location
+                )}.json`,
                 {
                     params: {
                         access_token: import.meta.env.VITE_MAPBOX_API_TOKEN,
@@ -224,7 +179,6 @@ const LocationForm: React.FC = () => {
             if (data.features && data.features.length > 0) {
                 const { center } = data.features[0]
                 const [lon, lat] = center
-                console.log('Geocoded position:', { lat, lon })
                 setPosition([lat, lon])
             } else {
                 console.warn('Location not found.')
@@ -235,13 +189,11 @@ const LocationForm: React.FC = () => {
         }
     }
 
-    // Debounced geocoding function to avoid excessive API calls
     const debouncedGeocodeLocation = useCallback(
         debounce(geocodeLocation, DEBOUNCE_DELAY),
         []
     )
 
-    // Geocode location whenever the input changes
     useEffect(() => {
         if (location) {
             debouncedGeocodeLocation(location)
@@ -275,28 +227,7 @@ const LocationForm: React.FC = () => {
                 {loading && <p>Loading...</p>}
                 {errorMsg && <p>Error: {errorMsg}</p>}
                 {weatherData && weatherData.weather && (
-                    <ResultContainer>
-                        <p>
-                            5 Hour Forecast (Low &lt; Present &lt; High) in °F
-                        </p>
-                        <TemperatureRange>
-                            <span>
-                                {weatherData.weather.fiveHrTemperatureLow}°F
-                            </span>
-                            &lt;
-                            <span>{weatherData.weather.temperature}°F</span>
-                            &lt;
-                            <span>
-                                {weatherData.weather.fiveHrTemperatureHigh}°F
-                            </span>
-                        </TemperatureRange>
-                        {weatherData.weather.description && (
-                            <p>{weatherData.weather.description}</p>
-                        )}
-                        {weatherData.weather.errorMessage && (
-                            <p>Error: {weatherData.weather.errorMessage}</p>
-                        )}
-                    </ResultContainer>
+                    <ResultContainer weatherData={weatherData} />
                 )}
             </FormContainer>
         </PageContainer>
