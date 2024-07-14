@@ -1,5 +1,5 @@
 import React from 'react'
-import LocationForm from './LocationForm'
+import LocationForm from './components/LocationForm.tsx'
 import styled from 'styled-components'
 
 const AppContainer = styled.div`
