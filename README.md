@@ -132,7 +132,6 @@ npm run dev
 
 ## With More Time...
 
-- **Frontend Refactor**: Modularize components into individual files for better maintainability.
 - **Test Coverage**: Increase the scope and depth of testing.
 - **Error Handling**: Implement more detailed exception handling and HTTP status code responses.
 - **Cache Indicator UI**: I chose not to implement a UI feature indicating whether data was retrieved from the cache. This decision was based on time constraints and feeling I've expressed enough in the code to show the flow of how it would be done.
@@ -140,9 +139,11 @@ npm run dev
 
 # CI
 
-- I've created a CI process that checks the frontend and backend before merging dev to main. Since I'm one person this avoids PRs that are only for my eyes, though in practice I wouldn't merge without PR acceptance.
+- Issues are tracked.
+- PRs come from Issues
+- PRs require (my own) approval befor merging, plus passing the CI tests.
+- main branch can only be altered via PRs.
 
-check it out here: <https://github.com/torsday/carpe-caelum/actions>
 
 # Linting
 
