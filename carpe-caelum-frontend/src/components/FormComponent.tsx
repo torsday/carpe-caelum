@@ -63,7 +63,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
     handleGeolocation,
     handleSubmit,
 }) => (
-    <Form onSubmit={handleSubmit}>
+    <Form onSubmit={handleSubmit} data-testid="weather-form">
         <InputContainer>
             <Input
                 type="text"

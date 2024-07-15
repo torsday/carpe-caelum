@@ -45,16 +45,21 @@ const ResultContainer: React.FC<ResultContainerProps> = ({ weatherData }) => {
 
     return (
         <ResultContainerStyled>
-            <p>5 Hour Forecast (Low &lt; Present &lt; High) in °F</p>
-            <TemperatureRange>
-                <span>{fiveHrTemperatureLow}°F</span>
-                &lt;
-                <span>{temperature}°F</span>
-                &lt;
-                <span>{fiveHrTemperatureHigh}°F</span>
-            </TemperatureRange>
-            {description && <p>{description}</p>}
-            {errorMessage && <p>Error: {errorMessage}</p>}
+            {errorMessage ? (
+                <p>Error: {errorMessage}</p>
+            ) : (
+                <>
+                    <p>5 Hour Forecast (Low &lt; Present &lt; High) in °F</p>
+                    <TemperatureRange>
+                        <span>{fiveHrTemperatureLow}°F</span>
+                        &lt;
+                        <span>{temperature}°F</span>
+                        &lt;
+                        <span>{fiveHrTemperatureHigh}°F</span>
+                    </TemperatureRange>
+                    {description && <p>{description}</p>}
+                </>
+            )}
         </ResultContainerStyled>
     )
 }

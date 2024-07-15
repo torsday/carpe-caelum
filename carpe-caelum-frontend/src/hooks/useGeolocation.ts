@@ -6,11 +6,13 @@ import { LAT_LON_PRECISION } from '../constants'
  *
  * @param setLocation - Function to update the location state as a string (latitude, longitude).
  * @param setPosition - Function to update the position state as an array of latitude and longitude.
+ * @param setErrorMsg - Function to update the error message state.
  * @returns handleGeolocation - A function to get the current position using the Geolocation API.
  */
 const useGeolocation = (
     setLocation: (location: string) => void,
-    setPosition: (position: [number, number]) => void
+    setPosition: (position: [number, number]) => void,
+    setErrorMsg: (msg: string) => void
 ) => {
     /**
      * Function to get the current position using the Geolocation API.
@@ -26,19 +28,22 @@ const useGeolocation = (
                     const lon =
                         position.coords.longitude.toFixed(LAT_LON_PRECISION)
 
+                    console.log(`Geolocation: ${lat}, ${lon}`)
+
                     // Update the location and position states with the formatted latitude and longitude
                     setLocation(`${lat},${lon}`)
                     setPosition([parseFloat(lat), parseFloat(lon)])
+                    setErrorMsg('') // Clear any previous error message
                 },
                 (error) => {
                     console.error('Error fetching geolocation:', error)
-                    alert('Unable to fetch your location.')
+                    setErrorMsg('Unable to fetch your location.')
                 }
             )
         } else {
-            alert('Geolocation is not supported by this browser.')
+            setErrorMsg('Geolocation is not supported by this browser.')
         }
-    }, [setLocation, setPosition])
+    }, [setLocation, setPosition, setErrorMsg])
 
     return handleGeolocation
 }

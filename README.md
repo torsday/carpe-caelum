@@ -4,11 +4,43 @@ Seize the Sky
 
 ---
 
+## Table of Contents
+
+- [Table of Contents](#table-of-contents)
+- [Purpose](#purpose)
+- [Demo](#demo)
+  - [UI](#ui)
+  - [GraphQL](#graphql)
+- [Key Design Choices](#key-design-choices)
+- [Design Overview](#design-overview)
+  - [Backend](#backend)
+  - [Frontend](#frontend)
+  - [Systems Design Considerations](#systems-design-considerations)
+    - [Backend](#backend-1)
+    - [Frontend](#frontend-1)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Redis](#redis)
+    - [Starting Redis](#starting-redis)
+    - [Monitoring Redis](#monitoring-redis)
+  - [Rails Backend](#rails-backend)
+    - [Starting the Server](#starting-the-server)
+    - [Running Tests](#running-tests)
+    - [Linting](#linting)
+  - [React Frontend](#react-frontend)
+    - [Starting the Development Server](#starting-the-development-server)
+    - [Running Tests](#running-tests-1)
+    - [Linting](#linting-1)
+- [With More Time...](#with-more-time)
+
+
+---
+
 ## Purpose
 
 - Get the weather for anywhere you can click or address you can search.
 
-## Presentation
+## Demo
 
 _Click images below for video_
 
@@ -121,6 +153,14 @@ bundle exec rspec spec
 bundle exec rspec spec --format documentation
 ```
 
+#### Linting
+
+```sh
+bundle exec rubocop
+bundle exec rails_best_practices .
+bundle exec rubocop --auto-correct
+```
+
 ### React Frontend
 
 #### Starting the Development Server
@@ -128,6 +168,17 @@ bundle exec rspec spec --format documentation
 ```sh
 cd carpe-caelum-frontend
 npm run dev
+```
+
+#### Running Tests
+
+
+#### Linting
+
+Lint, Prettyfy, and fix what you can
+
+```sh
+npm run lint
 ```
 
 ## With More Time...
@@ -143,19 +194,4 @@ npm run dev
 - PRs come from Issues
 - PRs require (my own) approval befor merging, plus passing the CI tests.
 - main branch can only be altered via PRs.
-
-
-# Linting
-
-```sh
-bundle exec rubocop
-bundle exec rails_best_practices .
-bundle exec rubocop --auto-correct
-```
-
-Lint, Prettyfy, and fix what you can
-
-```sh
-npm run lint
-```
 

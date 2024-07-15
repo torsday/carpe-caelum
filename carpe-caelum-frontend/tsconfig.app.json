@@ -9,7 +9,7 @@
         "module": "ESNext",
         "skipLibCheck": true,
 
-        /* Bundler mode */
+        // Module resolution settings
         "moduleResolution": "bundler",
         "allowImportingTsExtensions": true,
         "resolveJsonModule": true,
@@ -18,14 +18,16 @@
         "noEmit": true,
         "jsx": "react-jsx",
 
-        /* Linting */
+        // Enable strict type-checking options
         "strict": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "noFallthroughCasesInSwitch": true,
 
-        /* Node types */
-        "types": ["node"]
+        "types": ["node"],
+
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true
     },
     "include": ["src"]
 }
