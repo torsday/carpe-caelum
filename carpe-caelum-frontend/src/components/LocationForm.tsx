@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useQuery } from '@apollo/client'
 import styled from 'styled-components'
 import 'leaflet/dist/leaflet.css'
@@ -81,25 +81,28 @@ const LocationForm: React.FC = () => {
      * Handle form submission to fetch weather data
      * @param e - The form submission event
      */
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        if (position) {
-            const [latitude, longitude] = position
-            refetch({ latitude, longitude })
-                .then((response) => {
-                    setWeatherData(response.data)
-                    setErrorMsg('') // Clear error message on successful fetch
-                })
-                .catch((err) => {
-                    console.error('Error during refetch:', err)
-                    setErrorMsg(
-                        'Error fetching weather data. Please try again.'
-                    )
-                })
-        } else {
-            alert('Please select a location on the map.')
-        }
-    }
+    const handleSubmit = useCallback(
+        (e: React.FormEvent) => {
+            e.preventDefault()
+            if (position) {
+                const [latitude, longitude] = position
+                refetch({ latitude, longitude })
+                    .then((response) => {
+                        setWeatherData(response.data)
+                        setErrorMsg('') // Clear error message on successful fetch
+                    })
+                    .catch((err) => {
+                        console.error('Error during refetch:', err)
+                        setErrorMsg(
+                            'Error fetching weather data. Please try again.'
+                        )
+                    })
+            } else {
+                setErrorMsg('Please select a location on the map.')
+            }
+        },
+        [position, refetch]
+    )
 
     // Fetch user's geolocation on component mount
     useEffect(() => {
@@ -147,7 +150,7 @@ const LocationForm: React.FC = () => {
                     handleGeolocation={handleGeolocation}
                     handleSubmit={handleSubmit}
                 />
-                {loading && <LoadingText>Loading...</LoadingText>}
+                {loading && <LoadingText>Loading weather data...</LoadingText>}
                 {errorMsg && !weatherData && <p>Error: {errorMsg}</p>}
                 {weatherData && weatherData.weather && (
                     <ResultContainer weatherData={weatherData} />
