@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# WeatherService provides methods to retrieve weather data for given coordinates.
+# It interfaces with a weather repository to get current and forecasted weather information.
 class WeatherService
   attr_accessor :weather_repository
 
@@ -19,7 +21,7 @@ class WeatherService
   # @param longitude [Float] the longitude
   # @return [Float] the 'feels like' temperature
   def get_current_feels_like_temperature_for(latitude:, longitude:)
-    weather_repository.get_current_feels_like_temperature_for(latitude:, longitude:)
+    weather_repository.current_feels_like_temperature_for(latitude:, longitude:)
   end
 
   # Retrieves the low 'feels like' temperature for the next 5 hours for the given coordinates.
@@ -47,7 +49,7 @@ class WeatherService
   # @param window_in_hours [Integer] the number of hours to look ahead
   # @return [Hash] a hash containing the high and low 'feels like' temperatures
   def get_feels_like_high_and_low_for(latitude:, longitude:, window_in_hours: 24)
-    weather_repository.get_feels_like_high_and_low_for(latitude, longitude, window_in_hours)
+    weather_repository.feels_like_high_and_low_for(latitude:, longitude:, window_in_hours:)
   end
 
   # Retrieves the current weather conditions for the given coordinates.
@@ -56,6 +58,6 @@ class WeatherService
   # @param longitude [Float] the longitude
   # @return [String] the weather description
   def get_current_conditions_for(latitude:, longitude:)
-    weather_repository.get_current_conditions_for(latitude:, longitude:)
+    weather_repository.current_conditions_for(latitude:, longitude:)
   end
 end

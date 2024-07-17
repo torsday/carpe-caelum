@@ -1,8 +1,18 @@
+# sig/factories/weather_snapshot_factory.rbs
+
+class WeatherSnapshot
+  attr_reader utc: Time
+  attr_reader temperature_apparent: Float?
+  attr_reader weather_description: String
+
+  def initialize: (utc: Time, temperature_apparent: Float?, weather_description: String) -> void
+end
+
 class WeatherSnapshotFactory
   def self.to_json: (WeatherSnapshot) -> String
   def self.from_json: (String) -> WeatherSnapshot
 
   private
-  def self.create_weather_snapshot_from_hash: (Hash[:utc => String, :temperature_apparent => Float, :weather_description => String]) -> WeatherSnapshot
+  def self.create_weather_snapshot_from_hash: (Hash[Symbol, untyped]) -> WeatherSnapshot
   def self.parse_time: (String) -> Time?
 end

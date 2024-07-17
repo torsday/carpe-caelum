@@ -5,20 +5,20 @@ require_relative '../../../app/models/domain/weather_snapshot_collection'
 require_relative '../../../app/models/domain/weather_snapshot'
 
 RSpec.describe WeatherSnapshotCollection do
-  let(:snapshot1) do
+  let(:snapshot_sunny) do
     WeatherSnapshot.new(utc: '2023-07-03T12:00:00Z', temperature_apparent: 75.0, weather_description: 'Sunny')
   end
-  let(:snapshot2) do
+  let(:snapshot_partly_cloudy) do
     WeatherSnapshot.new(utc: '2023-07-03T13:00:00Z', temperature_apparent: 80.0, weather_description: 'Partly Cloudy')
   end
-  let(:snapshot3) do
+  let(:snapshot_cloudy) do
     WeatherSnapshot.new(utc: '2023-07-03T14:00:00Z', temperature_apparent: 70.0, weather_description: 'Cloudy')
   end
   let(:snapshots) do
     {
-      '2023-07-03T12:00:00Z' => snapshot1,
-      '2023-07-03T13:00:00Z' => snapshot2,
-      '2023-07-03T14:00:00Z' => snapshot3
+      '2023-07-03T12:00:00Z' => snapshot_sunny,
+      '2023-07-03T13:00:00Z' => snapshot_partly_cloudy,
+      '2023-07-03T14:00:00Z' => snapshot_cloudy
     }
   end
   let(:collection) { described_class.new(weather_snapshots: snapshots) }
@@ -29,45 +29,45 @@ RSpec.describe WeatherSnapshotCollection do
     end
   end
 
-  describe '#get_temp_high' do
+  describe '#temp_high' do
     it 'returns the highest apparent temperature' do
-      expect(collection.get_temp_high).to eq(80.0)
+      expect(collection.temp_high).to eq(80.0)
     end
   end
 
-  describe '#get_temp_low' do
+  describe '#temp_low' do
     it 'returns the lowest apparent temperature' do
-      expect(collection.get_temp_low).to eq(70.0)
+      expect(collection.temp_low).to eq(70.0)
     end
   end
 
-  describe '#get_utc_start' do
+  describe '#utc_start' do
     it 'returns the earliest UTC timestamp' do
-      expect(collection.get_utc_start).to eq('2023-07-03T12:00:00Z')
+      expect(collection.utc_start).to eq('2023-07-03T12:00:00Z')
     end
   end
 
-  describe '#get_utc_end' do
+  describe '#utc_end' do
     it 'returns the latest UTC timestamp' do
-      expect(collection.get_utc_end).to eq('2023-07-03T14:00:00Z')
+      expect(collection.utc_end).to eq('2023-07-03T14:00:00Z')
     end
   end
 
-  describe '#get_list_of_snapshots' do
+  describe '#list_of_snapshots' do
     it 'returns a list of all weather snapshots' do
-      expect(collection.get_list_of_snapshots).to contain_exactly(snapshot1, snapshot2, snapshot3)
+      expect(collection.list_of_snapshots).to contain_exactly(snapshot_sunny, snapshot_partly_cloudy, snapshot_cloudy)
     end
   end
 
-  describe '#get_weather_snapshot_for' do
+  describe '#weather_snapshot_for' do
     it 'returns the weather snapshot for a given UTC' do
-      expect(collection.get_weather_snapshot_for('2023-07-03T12:00:00Z')).to eq(snapshot1)
-      expect(collection.get_weather_snapshot_for('2023-07-03T13:00:00Z')).to eq(snapshot2)
-      expect(collection.get_weather_snapshot_for('2023-07-03T14:00:00Z')).to eq(snapshot3)
+      expect(collection.weather_snapshot_for('2023-07-03T12:00:00Z')).to eq(snapshot_sunny)
+      expect(collection.weather_snapshot_for('2023-07-03T13:00:00Z')).to eq(snapshot_partly_cloudy)
+      expect(collection.weather_snapshot_for('2023-07-03T14:00:00Z')).to eq(snapshot_cloudy)
     end
 
     it 'returns nil if no snapshot exists for the given UTC' do
-      expect(collection.get_weather_snapshot_for('2023-07-03T15:00:00Z')).to be_nil
+      expect(collection.weather_snapshot_for('2023-07-03T15:00:00Z')).to be_nil
     end
   end
 end

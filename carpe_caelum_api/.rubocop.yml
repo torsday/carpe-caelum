@@ -8,10 +8,13 @@ require:
   - rubocop-graphql
   - rubocop-minitest
   - rubocop-rspec_rails
+  - rubocop-rbs
+
 
 AllCops:
   NewCops: enable
   TargetRubyVersion: 3.1
+  CacheRootDirectory: './rubocop_cache'
 
 # Layout settings
 Layout/LineLength:
@@ -62,3 +65,7 @@ GraphQL:
 # rubocop-minitest settings
 Minitest:
   Enabled: true
+
+Rbs:
+  Enabled: true
+  RBSCollection: 'rbs' # the directory where the RBS files are located

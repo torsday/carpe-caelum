@@ -45,7 +45,11 @@ const useGeocodeLocation = (
             }
         } catch (error) {
             console.error('Error geocoding location:', error)
-            setErrorMsg('Error geocoding location. Please try again.')
+            if (error.response && error.response.status === 404) {
+                setErrorMsg('Location not found. Please try again.')
+            } else {
+                setErrorMsg('Error geocoding location. Please try again.')
+            }
         }
     }
 
@@ -55,7 +59,10 @@ const useGeocodeLocation = (
      * @returns A debounced function that geocodes a location string.
      */
     const debouncedGeocodeLocation = useCallback(
-        debounce(geocodeLocation, DEBOUNCE_DELAY),
+        debounce(
+            (location: string) => geocodeLocation(location),
+            DEBOUNCE_DELAY
+        ),
         []
     )
 

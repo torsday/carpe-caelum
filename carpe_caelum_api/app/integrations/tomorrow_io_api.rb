@@ -7,6 +7,7 @@ require 'zlib'
 require 'stringio'
 require 'json'
 
+# This class interacts with the Tomorrow.io API to fetch weather timelines.
 class TomorrowIoApi
   BASE_URL = 'https://api.tomorrow.io/v4/timelines'
   FIELDS = %w[
@@ -161,20 +162,37 @@ class TomorrowIoApi
   # @param response [Net::HTTPResponse, nil] the HTTP response
   # @return [Hash, nil] the parsed JSON timeline or nil if an error occurs
   def process_response(response)
-    if response.nil?
-      Rails.logger.error 'No response received'
-      return nil
-    end
+    return log_no_response unless response
 
     Rails.logger.info "Response received with code: #{response.code} and message: #{response.message}"
 
-    if response.code == '200'
-      raw_timeline = decompress_response(response)
-      parse_response(raw_timeline)
-    else
-      Rails.logger.error "Error: #{response.code} #{response.message}"
-      nil
-    end
+    response.code == '200' ? parse_valid_response(response) : log_invalid_response(response)
+  end
+
+  # Logs and returns nil if no response is received.
+  #
+  # @return [nil]
+  def log_no_response
+    Rails.logger.error 'No response received'
+    nil
+  end
+
+  # Logs an invalid response and returns nil.
+  #
+  # @param response [Net::HTTPResponse] the HTTP response
+  # @return [nil]
+  def log_invalid_response(response)
+    Rails.logger.error "Error: #{response.code} #{response.message}"
+    nil
+  end
+
+  # Parses a valid response.
+  #
+  # @param response [Net::HTTPResponse] the HTTP response
+  # @return [Hash, nil] the parsed JSON timeline or nil if an error occurs
+  def parse_valid_response(response)
+    raw_timeline = decompress_response(response)
+    parse_response(raw_timeline)
   end
 
   # Decompresses the response if it is gzipped.
@@ -182,11 +200,7 @@ class TomorrowIoApi
   # @param response [Net::HTTPResponse] the HTTP response
   # @return [String] the decompressed response body
   def decompress_response(response)
-    if response['content-encoding'] == 'gzip'
-      Zlib::GzipReader.new(StringIO.new(response.body.to_s)).read
-    else
-      response.body
-    end
+    response['content-encoding'] == 'gzip' ? Zlib::GzipReader.new(StringIO.new(response.body.to_s)).read : response.body
   end
 
   # Parses the raw JSON timeline from the response.
@@ -194,9 +208,9 @@ class TomorrowIoApi
   # @param raw_timeline [String] the raw JSON timeline
   # @return [Hash, nil] the parsed JSON or nil if parsing fails
   def parse_response(raw_timeline)
-    return nil if raw_timeline.empty?
-
-    JSON.parse(raw_timeline)
+    JSON.parse(raw_timeline).tap do |parsed|
+      raise JSON::ParserError if parsed.empty?
+    end
   rescue JSON::ParserError => e
     log_error('JSON parsing failed', e)
     nil

@@ -1,3 +1,5 @@
+# sig/weather_descriptions.rbs
+
 module WeatherDescriptions
   UNKNOWN: String
   CLEAR_SUNNY: String

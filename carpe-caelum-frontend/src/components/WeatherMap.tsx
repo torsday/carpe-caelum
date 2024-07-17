@@ -45,6 +45,8 @@ const LocationMarker: React.FC<LocationMarkerProps> = ({
             setPosition(newPosition)
             getWeather({
                 variables: { latitude: lat, longitude: lon },
+            }).catch((err) => {
+                console.error('Error during map click refetch:', err)
             })
         },
     })

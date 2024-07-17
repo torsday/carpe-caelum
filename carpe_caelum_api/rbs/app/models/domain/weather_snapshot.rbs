@@ -1,13 +1,9 @@
-# frozen_string_literal: true
+# sig/weather_snapshot.rbs
 
 class WeatherSnapshot
   attr_reader utc: Time
-  attr_reader temperature_apparent: Float
+  attr_reader temperature_apparent: Float?
   attr_reader weather_description: String
 
-  def initialize: (
-      utc: Time,
-      temperature_apparent: Float,
-      weather_description: String
-    ) -> void
+  def initialize: (utc: Time, temperature_apparent: Float?, weather_description: String) -> void
 end

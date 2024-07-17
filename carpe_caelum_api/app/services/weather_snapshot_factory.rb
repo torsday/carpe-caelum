@@ -2,6 +2,8 @@
 
 require 'json'
 
+# WeatherSnapshotFactory is responsible for creating and converting WeatherSnapshot objects
+# to and from JSON.
 class WeatherSnapshotFactory
   # Converts a WeatherSnapshot object to a JSON string.
   #
