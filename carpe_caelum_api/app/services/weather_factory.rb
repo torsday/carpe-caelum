@@ -4,6 +4,8 @@ require_relative '../models/domain/weather_snapshot'
 require_relative '../models/domain/weather_snapshot_collection'
 require_relative '../models/domain/weather_descriptions'
 
+# WeatherFactory is responsible for building weather snapshots and collections
+# from the Tomorrow.io API response.
 class WeatherFactory
   # Builds a collection of WeatherSnapshot objects from the Tomorrow.io API response.
   #
@@ -12,22 +14,74 @@ class WeatherFactory
   # @raise [StandardError] if an error occurs during the process.
   def self.build_weather_snapshots_from_tomorrow_io_timeline_resp(api_response)
     Rails.logger.debug 'Building weather snapshots from Tomorrow.io API response'
+    Rails.logger.debug { "API Response: #{api_response.inspect}" }
 
-    intervals = api_response.dig('data', 'timelines', 0, 'intervals')
-    raise 'No intervals found in the API response' unless intervals
-
-    # Create a hash of weather snapshots, with the interval start time as the key
-    weather_snapshot_dict = intervals.each_with_object({}) do |interval, dict|
-      snapshot = build_weather_snapshot_from_tomorrow_io_timeline_interval(api_response_interval: interval)
-      dict[interval['startTime']] = snapshot
-    end
+    data = fetch_data(api_response)
+    timelines = fetch_timelines(data)
+    intervals = fetch_intervals(timelines)
+    weather_snapshot_dict = build_snapshot_dict(intervals)
 
     Rails.logger.debug 'Completed building weather snapshots'
     WeatherSnapshotCollection.new(weather_snapshots: weather_snapshot_dict)
   rescue StandardError => e
-    Rails.logger.error "Error in build_weather_snapshots_from_tomorrow_io_timeline_resp: #{e.message}"
-    Rails.logger.error e.backtrace.join("\n")
+    log_error('build_weather_snapshots_from_tomorrow_io_timeline_resp', e)
     raise
+  end
+
+  # Retrieves the data from the API response.
+  #
+  # @param api_response [Hash] The parsed JSON response from the Tomorrow.io API.
+  # @return [Hash] The data from the API response.
+  # @raise [StandardError] if data is not found in the API response.
+  def self.fetch_data(api_response)
+    data = api_response['data']
+    raise 'No data found in the API response' unless data
+
+    data
+  end
+
+  # Retrieves the timelines from the data.
+  #
+  # @param data [Hash] The data from the API response.
+  # @return [Array] The timelines from the data.
+  # @raise [StandardError] if timelines are not found in the data.
+  def self.fetch_timelines(data)
+    timelines = data['timelines']
+    raise 'No timelines found in the API response' unless timelines
+
+    timelines
+  end
+
+  # Retrieves the intervals from the timelines.
+  #
+  # @param timelines [Array] The timelines from the data.
+  # @return [Array] The intervals from the timelines.
+  # @raise [StandardError] if intervals are not found in the timelines.
+  def self.fetch_intervals(timelines)
+    intervals = timelines.dig(0, 'intervals')
+    raise 'No intervals found in the API response' unless intervals
+
+    intervals
+  end
+
+  # Builds a dictionary of weather snapshots from the intervals.
+  #
+  # @param intervals [Array] The intervals from the timelines.
+  # @return [Hash{String => WeatherSnapshot}] A dictionary of weather snapshots.
+  def self.build_snapshot_dict(intervals)
+    intervals.each_with_object({}) do |interval, dict|
+      snapshot = build_weather_snapshot_from_tomorrow_io_timeline_interval(api_response_interval: interval)
+      dict[interval['startTime']] = snapshot
+    end
+  end
+
+  # Logs an error message and backtrace.
+  #
+  # @param method [String] The name of the method where the error occurred.
+  # @param error [StandardError] The error to log.
+  def self.log_error(method, error)
+    Rails.logger.error "Error in #{method}: #{error.message}"
+    Rails.logger.error error.backtrace.join("\n")
   end
 
   # Builds a WeatherSnapshot object from a single interval of the Tomorrow.io API response.
@@ -35,6 +89,7 @@ class WeatherFactory
   # @param api_response_interval [Hash] A single interval of the Tomorrow.io API response.
   # @return [WeatherSnapshot] A weather snapshot.
   # @raise [StandardError] if an error occurs during the process.
+  # rubocop:disable Metrics/MethodLength
   def self.build_weather_snapshot_from_tomorrow_io_timeline_interval(api_response_interval:)
     Rails.logger.debug { "Building weather snapshot from interval: #{api_response_interval}" }
 
@@ -46,10 +101,10 @@ class WeatherFactory
       )
     )
   rescue StandardError => e
-    Rails.logger.error "Error in build_weather_snapshot_from_tomorrow_io_timeline_interval: #{e.message}"
-    Rails.logger.error e.backtrace.join("\n")
+    log_error('build_weather_snapshot_from_tomorrow_io_timeline_interval', e)
     raise
   end
+  # rubocop:enable Metrics/MethodLength
 
   # Translates a Tomorrow.io weather code to a local weather description.
   #
@@ -58,7 +113,15 @@ class WeatherFactory
   def self.translate_tomorrow_io_weather_code_to_weather_description(tomorrow_io_weather_code)
     Rails.logger.debug { "Translating weather code: #{tomorrow_io_weather_code}" }
 
-    weather_descriptions = {
+    weather_descriptions[tomorrow_io_weather_code] || WeatherDescriptions::UNKNOWN
+  end
+
+  # Defines the weather descriptions mapping.
+  #
+  # @return [Hash{String => String}] A hash mapping weather codes to descriptions.
+  # rubocop:disable Metrics/MethodLength
+  def self.weather_descriptions
+    {
       '0' => WeatherDescriptions::UNKNOWN,
       '1000' => WeatherDescriptions::CLEAR_SUNNY,
       '1100' => WeatherDescriptions::MOSTLY_CLEAR,
@@ -84,8 +147,6 @@ class WeatherFactory
       '7102' => WeatherDescriptions::LIGHT_ICE_PELLETS,
       '8000' => WeatherDescriptions::THUNDERSTORM
     }.freeze
-
-    # Return the local weather description or UNKNOWN if the code is not found
-    weather_descriptions[tomorrow_io_weather_code] || WeatherDescriptions::UNKNOWN
   end
+  # rubocop:enable Metrics/MethodLength
 end

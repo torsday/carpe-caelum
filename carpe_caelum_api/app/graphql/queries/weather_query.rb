@@ -2,11 +2,13 @@
 
 module Queries
   # WeatherQuery is a GraphQL resolver for fetching weather data.
+  #
+  # Fetches weather information for a given latitude and longitude.
   class WeatherQuery < GraphQL::Schema::Resolver
     type Types::WeatherType, null: true
 
-    argument :latitude, Float, required: true
-    argument :longitude, Float, required: true
+    argument :latitude, Float, required: true, description: 'The latitude of the location'
+    argument :longitude, Float, required: true, description: 'The longitude of the location'
 
     # Resolves the weather data for given latitude and longitude.
     #

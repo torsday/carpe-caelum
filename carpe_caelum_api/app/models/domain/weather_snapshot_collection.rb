@@ -14,35 +14,35 @@ class WeatherSnapshotCollection
   # Retrieves the highest apparent temperature in the collection.
   #
   # @return [Float, nil] the highest apparent temperature or nil if the collection is empty
-  def get_temp_high
+  def temp_high
     weather_snapshots.values.map(&:temperature_apparent).max
   end
 
   # Retrieves the lowest apparent temperature in the collection.
   #
   # @return [Float, nil] the lowest apparent temperature or nil if the collection is empty
-  def get_temp_low
+  def temp_low
     weather_snapshots.values.map(&:temperature_apparent).min
   end
 
   # Retrieves the earliest UTC time in the collection.
   #
   # @return [String, nil] the earliest UTC time or nil if the collection is empty
-  def get_utc_start
+  def utc_start
     weather_snapshots.keys.min
   end
 
   # Retrieves the latest UTC time in the collection.
   #
   # @return [String, nil] the latest UTC time or nil if the collection is empty
-  def get_utc_end
+  def utc_end
     weather_snapshots.keys.max
   end
 
   # Retrieves a list of all WeatherSnapshot objects in the collection.
   #
   # @return [Array<WeatherSnapshot>] the list of WeatherSnapshot objects
-  def get_list_of_snapshots
+  def list_of_snapshots
     weather_snapshots.values
   end
 
@@ -50,7 +50,7 @@ class WeatherSnapshotCollection
   #
   # @param utc [String] the UTC time
   # @return [WeatherSnapshot, nil] the WeatherSnapshot object or nil if not found
-  def get_weather_snapshot_for(utc)
+  def weather_snapshot_for(utc)
     weather_snapshots[utc]
   end
 end

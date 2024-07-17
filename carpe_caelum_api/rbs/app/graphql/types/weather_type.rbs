@@ -1,0 +1,19 @@
+module Types
+  class WeatherType < Types::BaseObject
+    def description: () -> String?
+    def error_message: () -> String?
+    def five_hr_temperature_high: () -> Float?
+    def five_hr_temperature_low: () -> Float?
+    def temperature: () -> Float?
+  end
+
+  class BaseObject
+    def self.field: (
+      name: Symbol,
+      type: Class,
+      null: bool,
+      method: Symbol?,
+      description: String?
+    ) -> void
+  end
+end

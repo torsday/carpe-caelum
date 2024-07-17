@@ -1,18 +1,17 @@
 # frozen_string_literal: true
 
-# spec/weather_repository_spec.rb
 require 'rails_helper'
 
-require_relative '../../app/repositories/weather_repository'
-require_relative '../../app/models/domain/weather_snapshot_collection'
-require_relative '../../app/models/domain/weather_snapshot'
-
 RSpec.describe WeatherRepository do
-  let(:redis_client) { double('RedisClient') }
-  let(:tomorrow_io_wrapper) { double('TomorrowIoWrapper') }
-  let(:latitude_longitude_precision) { 2 }
-  let(:repository) do
-    described_class.new(redis_client:, tomorrow_io_wrapper:, latitude_longitude_precision:)
+  let(:redis_client) { instance_double(Redis) }
+  let(:tomorrow_io_wrapper) { instance_double(TomorrowIoApi) }
+  let(:latitude_longitude_precision) { 3 }
+  let(:weather_repository) do
+    described_class.new(
+      redis_client:,
+      tomorrow_io_wrapper:,
+      latitude_longitude_precision:
+    )
   end
 
   describe '#initialize' do
@@ -38,31 +37,88 @@ RSpec.describe WeatherRepository do
     end
   end
 
-  describe '#get_current_feels_like_temperature_for' do
+  describe '#current_feels_like_temperature_for' do
+    let(:latitude) { 45.0 }
+    let(:longitude) { -122.0 }
+    let(:weather_snapshot) { instance_double(WeatherSnapshot, temperature_apparent: 72.5) }
+
+    before do
+      allow(weather_repository).to receive_messages(snapshot_for: weather_snapshot,
+                                                    current_utc_rounded_down: Time.now.utc.change(
+                                                      min: 0, sec: 0
+                                                    ))
+    end
+
     it 'returns the current feels like temperature' do
-      latitude = 45.0
-      longitude = -122.0
-      utc = Time.now.utc.change(min: 0, sec: 0)
-      snapshot = WeatherSnapshot.new(utc:, temperature_apparent: 75.0, weather_description: 'Sunny')
-
-      allow(repository).to receive(:get_snapshot_for).with(latitude:, longitude:,
-                                                           utc:).and_return(snapshot)
-
-      expect(repository.get_current_feels_like_temperature_for(latitude:, longitude:)).to eq(75.0)
+      expect(weather_repository.current_feels_like_temperature_for(latitude:,
+                                                                   longitude:)).to eq(72.5)
     end
   end
 
-  describe '#get_current_conditions_for' do
+  describe '#current_conditions_for' do
+    let(:latitude) { 45.0 }
+    let(:longitude) { -122.0 }
+    let(:weather_snapshot) { instance_double(WeatherSnapshot, weather_description: 'Sunny') }
+
+    before do
+      allow(weather_repository).to receive_messages(snapshot_for: weather_snapshot,
+                                                    current_utc_rounded_down: Time.now.utc.change(
+                                                      min: 0, sec: 0
+                                                    ))
+    end
+
     it 'returns the current weather conditions' do
-      latitude = 45.0
-      longitude = -122.0
-      utc = Time.now.utc.change(min: 0, sec: 0)
-      snapshot = WeatherSnapshot.new(utc:, temperature_apparent: 75.0, weather_description: 'Sunny')
+      expect(weather_repository.current_conditions_for(latitude:, longitude:)).to eq('Sunny')
+    end
+  end
 
-      allow(repository).to receive(:get_snapshot_for).with(latitude:, longitude:,
-                                                           utc:).and_return(snapshot)
+  describe '#feels_like_high_and_low_for' do
+    let(:latitude) { 45.0 }
+    let(:longitude) { -122.0 }
+    let(:window_in_hours) { 6 }
+    let(:snapshot_collection) { instance_double(WeatherSnapshotCollection, temp_low: 65.0, temp_high: 85.0) }
 
-      expect(repository.get_current_conditions_for(latitude:, longitude:)).to eq('Sunny')
+    before do
+      allow(weather_repository).to receive(:build_snapshot_collection).and_return(snapshot_collection)
+    end
+
+    it 'returns the high and low feels like temperatures' do
+      result = weather_repository.feels_like_high_and_low_for(latitude:, longitude:,
+                                                              window_in_hours:)
+      expect(result).to eq({ temp_low: 65.0, temp_high: 85.0 })
+    end
+  end
+
+  describe '#validate_coordinates' do
+    it 'raises an error if latitude is out of range' do
+      expect do
+        weather_repository.send(:validate_coordinates, -100,
+                                0)
+      end.to raise_error(ArgumentError, 'latitude must be between -90 and 90')
+    end
+
+    it 'raises an error if longitude is out of range' do
+      expect do
+        weather_repository.send(:validate_coordinates, 0,
+                                -200)
+      end.to raise_error(ArgumentError, 'longitude must be between -180 and 180')
+    end
+  end
+
+  describe '#validate_utc' do
+    it 'raises an error if utc is not a Time object' do
+      expect do
+        weather_repository.send(:validate_utc, 'not a time')
+      end.to raise_error(ArgumentError, 'utc must be a Time object')
+    end
+  end
+
+  describe '#validate_window_in_hours' do
+    it 'raises an error if window_in_hours is not a positive integer' do
+      expect do
+        weather_repository.send(:validate_window_in_hours,
+                                -1)
+      end.to raise_error(ArgumentError, 'window_in_hours must be a positive integer')
     end
   end
 end

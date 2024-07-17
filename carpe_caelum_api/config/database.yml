@@ -1,20 +1,23 @@
 default: &default
   adapter: postgresql
   encoding: unicode
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  username: <%= ENV["CARPE_CAELUM_DATABASE_USERNAME"] %>
-  password: <%= ENV["CARPE_CAELUM_DATABASE_PASSWORD"] %>
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %> # Default pool size of 5 if RAILS_MAX_THREADS is not set
+  username: <%= ENV.fetch("CARPE_CAELUM_DATABASE_USERNAME") %>
+  password: <%= ENV.fetch("CARPE_CAELUM_DATABASE_PASSWORD") %>
+  host: <%= ENV.fetch("CARPE_CAELUM_DATABASE_HOST", "localhost") %> # Default host to localhost if not set
+  port: <%= ENV.fetch("CARPE_CAELUM_DATABASE_PORT", 5432) %> # Default port to 5432 if not set
+  sslmode: <%= ENV.fetch("CARPE_CAELUM_DATABASE_SSLMODE", "prefer") %> # SSL mode can be set to 'require', 'prefer', etc.
+  timeout: 5000 # Connection timeout in milliseconds
 
 development:
   <<: *default
-  database: carpe_caelum_development
+  database: <%= ENV.fetch("CARPE_CAELUM_DATABASE_DEVELOPMENT", "carpe_caelum_development") %>
 
 test:
   <<: *default
-  database: carpe_caelum_test
+  database: <%= ENV.fetch("CARPE_CAELUM_DATABASE_TEST", "carpe_caelum_test") %>
 
 production:
   <<: *default
-  database: carpe_caelum_production
-  username: carpe_caelum
-  password: <%= ENV['CARPE_CAELUM_DATABASE_PASSWORD'] %>
+  database: <%= ENV.fetch("CARPE_CAELUM_DATABASE_PRODUCTION", "carpe_caelum_production") %>
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>

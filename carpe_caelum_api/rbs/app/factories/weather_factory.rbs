@@ -1,9 +1,21 @@
+# sig/weather_factory.rbs
+
 class WeatherFactory
   def self.build_weather_snapshots_from_tomorrow_io_timeline_resp: (Hash[String, untyped]) -> WeatherSnapshotCollection
 
+  def self.fetch_data: (Hash[String, untyped]) -> Hash[String, untyped]
+
+  def self.fetch_timelines: (Hash[String, untyped]) -> Array[untyped]
+
+  def self.fetch_intervals: (Array[untyped]) -> Array[untyped]
+
+  def self.build_snapshot_dict: (Array[untyped]) -> Hash[String, WeatherSnapshot]
+
+  def self.log_error: (String, StandardError) -> void
+
   def self.build_weather_snapshot_from_tomorrow_io_timeline_interval: (api_response_interval: Hash[String, untyped]) -> WeatherSnapshot
 
-  private
-
   def self.translate_tomorrow_io_weather_code_to_weather_description: (String) -> String
+
+  def self.weather_descriptions: -> Hash[String, String]
 end
