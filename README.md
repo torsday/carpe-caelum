@@ -156,9 +156,13 @@ bundle exec rspec spec --format documentation
 #### Linting
 
 ```sh
+steep check
+```
+
+```sh
 bundle exec rubocop
 bundle exec rails_best_practices .
-bundle exec rubocop --auto-correct
+bundle exec rubocop -A
 ```
 
 ### React Frontend
