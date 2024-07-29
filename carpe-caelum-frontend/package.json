@@ -29,7 +29,7 @@
     },
     "devDependencies": {
         "@eslint/create-config": "^1.1.6",
-        "@swc/core": "^1.6.13",
+        "@swc/core": "^1.7.3",
         "@swc/helpers": "^0.5.12",
         "@types/leaflet": "^1.9.12",
         "@types/react": "^18.3.3",
